@@ -15,8 +15,7 @@ class BeneficiaryRequest extends FormRequest
      */
     public function authorize()
     {
-        $num_beneficiarys = Auth::user()->beneficiarys->count();
-        return $num_beneficiarys < 5;
+        return true;
     }
 
     public function attributes()

@@ -27,7 +27,9 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('/user', UserController::class);
     /* Beneficiarios */
     Route::controller(BeneficiaryController::class)->group(function () {
+        Route::get('/beneficiary', 'getAll');
         Route::post('/beneficiary', 'create');
+        Route::put('/beneficiary/{beneficiary}', 'update');
         Route::delete('/beneficiary/{beneficiary}', 'destroy');
     });
 });
