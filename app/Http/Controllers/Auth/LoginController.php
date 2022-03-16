@@ -20,10 +20,11 @@ class LoginController extends Controller
      */
     public function __invoke(LoginRequest $request): JsonResponse
     {
-        $credentials = $request->only('nick_name_user', 'password');
-        if (Auth::attempt($credentials)) {
-            return new JsonResponse(['success' => true,'user'=>auth()->user()]);
+        $remeberMe      = $request->input('remember_me', false);
+        $credentials    = $request->only('nick_name_user', 'password');
+        if (Auth::attempt($credentials, $remeberMe)) {
+            return new JsonResponse(['success' => true, 'user' => auth()->user()]);
         }
-        return new JsonResponse(['success' => false, 'message' => __('auth.failed')]);
+        return new JsonResponse(['success' => false, 'message' => __('auth.failed')], 422);
     }
 }
