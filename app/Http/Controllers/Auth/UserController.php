@@ -19,6 +19,6 @@ class UserController extends Controller
     public function __invoke(): JsonResponse
     {
         $user = Auth::user();
-        return new JsonResponse(['success' => true, 'user' => $user]);
+        return new JsonResponse(['user' => $user]);
     }
 }

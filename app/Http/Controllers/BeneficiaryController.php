@@ -16,15 +16,14 @@ class BeneficiaryController extends Controller
         $beneficiary = new Beneficiary();
         $beneficiary->name_beneficiary = $request->name_beneficiary;
         $beneficiary->save();
-        return response()->json(['success' => true, 'beneficiary' => $beneficiary]);
+        return response()->json(['beneficiary' => $beneficiary]);
     }
 
     public function destroy(Beneficiary $beneficiary)
     {
         $this->authorize('delete', $beneficiary);
-
-        $ifWasDelete = $beneficiary->delete();
-        return response()->json(['success' => $ifWasDelete]);
+        $beneficiary->delete();
+        return response()->json(['beneficiary' => $beneficiary]);
     }
 
     public function update(BeneficiaryRequest $request, Beneficiary $beneficiary)
@@ -32,9 +31,9 @@ class BeneficiaryController extends Controller
         $this->authorize('update', $beneficiary);
 
         $beneficiary->name_beneficiary  = $request->name_beneficiary;
-        $ifwasUpdate                    = $beneficiary->update();
+        $beneficiary->update();
 
-        return response()->json(['success' => $ifwasUpdate, 'beneficiary' => $beneficiary]);
+        return response()->json(['beneficiary' => $beneficiary]);
     }
 
     public function getAll()

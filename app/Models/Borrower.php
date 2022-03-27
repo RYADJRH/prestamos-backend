@@ -23,7 +23,9 @@ class Borrower extends Model
         'id_beneficiary'
     ];
 
-   /*  public function beneficiary()
+
+    /*
+    public function beneficiary()
     {
         return $this->belongsTo(Beneficiary::class, 'id_beneficiary', 'id_beneficiary');
     }

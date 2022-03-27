@@ -8,7 +8,6 @@ use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Log;
 
 class LoginController extends Controller
 {
@@ -20,11 +19,10 @@ class LoginController extends Controller
      */
     public function __invoke(LoginRequest $request): JsonResponse
     {
-        $remeberMe      = $request->input('remember_me', false);
         $credentials    = $request->only('nick_name_user', 'password');
-        if (Auth::attempt($credentials, $remeberMe)) {
-            return new JsonResponse(['success' => true, 'user' => auth()->user()]);
+        if (Auth::attempt($credentials)) {
+            return new JsonResponse(['user' => auth()->user()]);
         }
-        return new JsonResponse(['success' => false, 'message' => __('auth.failed')], 422);
+        return new JsonResponse(['message' => '', 'errors' => ['nick_name_user' => [__('auth.failed')]]], 422);
     }
 }
