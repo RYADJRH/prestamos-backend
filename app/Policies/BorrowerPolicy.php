@@ -5,6 +5,7 @@ namespace App\Policies;
 use App\Models\Borrower;
 use App\Models\User;
 use Illuminate\Auth\Access\HandlesAuthorization;
+use Illuminate\Support\Facades\Log;
 
 class BorrowerPolicy
 {
@@ -16,9 +17,9 @@ class BorrowerPolicy
      * @param  \App\Models\User  $user
      * @return \Illuminate\Auth\Access\Response|bool
      */
-    public function viewAny(User $user)
+    public function viewAny(User $user, $beneficiary)
     {
-        //
+        return  $beneficiary->user->id_user == $user->id_user;
     }
 
     /**
@@ -39,9 +40,10 @@ class BorrowerPolicy
      * @param  \App\Models\User  $user
      * @return \Illuminate\Auth\Access\Response|bool
      */
-    public function create(User $user)
+    public function create(User $user, $id_beneficiary)
     {
-        //
+        $beneficiary = $user->beneficiarys()->select('id_beneficiary')->where('id_beneficiary', $id_beneficiary)->first();
+        return $beneficiary;
     }
 
     /**
@@ -51,9 +53,12 @@ class BorrowerPolicy
      * @param  \App\Models\Borrower  $borrower
      * @return \Illuminate\Auth\Access\Response|bool
      */
-    public function update(User $user, Borrower $borrower)
+    public function update(User $user, Borrower $borrower, $id_beneficiary)
     {
-        //
+        $beneficiary = $user->beneficiarys()->select('id_beneficiary')->where('id_beneficiary', $id_beneficiary)->first();
+        if ($beneficiary)
+            return $beneficiary->id_beneficiary == $borrower->id_beneficiary;
+        return false;
     }
 
     /**
@@ -65,7 +70,8 @@ class BorrowerPolicy
      */
     public function delete(User $user, Borrower $borrower)
     {
-        //
+        $beneficiary        = $borrower->beneficiary;
+        return  $beneficiary->id_user == $user->id_user;
     }
 
     /**

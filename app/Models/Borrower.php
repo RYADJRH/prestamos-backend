@@ -2,12 +2,15 @@
 
 namespace App\Models;
 
+use App\Traits\BorrowerTraits;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Str;
 
 class Borrower extends Model
 {
-    use HasFactory;
+    use HasFactory, BorrowerTraits;
 
     protected $table        = 'borrowers';
     protected $primaryKey   = 'id_borrower';
@@ -23,12 +26,30 @@ class Borrower extends Model
         'id_beneficiary'
     ];
 
+    public function nameBorrower(): Attribute
+    {
+        return new Attribute(
+            get: fn ($value) => ucwords($value),
+            set: fn ($value) => Str::lower($value),
+        );
+    }
 
-    /*
+    public function lastNameBorrower(): Attribute
+    {
+        return new Attribute(
+            get: fn ($value) => ucwords($value),
+            set: fn ($value) => Str::lower($value),
+        );
+    }
+    
     public function beneficiary()
     {
         return $this->belongsTo(Beneficiary::class, 'id_beneficiary', 'id_beneficiary');
     }
+
+
+    /*
+
 
     public function individualBorrow()
     {
