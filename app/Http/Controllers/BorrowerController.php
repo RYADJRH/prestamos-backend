@@ -7,7 +7,6 @@ use App\Models\Beneficiary;
 use App\Models\Borrower;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
 
 
 class BorrowerController extends Controller
@@ -47,9 +46,15 @@ class BorrowerController extends Controller
     {
         $search = $request->input('search', '');
         $this->authorize('viewAny', [Borrower::class, $beneficiary]);
+
         $borrowers = $beneficiary->borrowers()
-            ->where('name_borrower', 'LIKE', "%{$search}%")
-            ->simplePaginate(5);
+            ->where(function ($query) use ($search) {
+                $query->where('name_borrower', 'LIKE', "%{$search}%")
+                    ->orWhere('last_name_borrower', 'LIKE', "%{$search}%");
+            })
+            ->orderBy('id_borrower', 'DESC')
+            ->paginate(5);
+
         return new JsonResponse(['borrowers' => $borrowers]);
     }
 
