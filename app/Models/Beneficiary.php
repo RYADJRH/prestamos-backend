@@ -50,11 +50,9 @@ class Beneficiary extends Model
         return $this->belongsTo(User::class, 'id_user', 'id_user');
     }
 
-    /*
-
-
     public function groups()
     {
-        return $this->hasMany(Group::class,'id_beneficiary','id_beneficiary');
-    } */
+        return $this->hasMany(Group::class, 'id_beneficiary', 'id_beneficiary');
+    }
+
 }

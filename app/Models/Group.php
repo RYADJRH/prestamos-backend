@@ -3,8 +3,10 @@
 namespace App\Models;
 
 use App\Enum\DayWeekEnum;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Str;
 
 class Group extends Model
 {
@@ -21,16 +23,35 @@ class Group extends Model
     protected $fillable = [
         'name_group',
         'created_group',
+        'state_archived_group',
         'id_beneficiary'
     ];
 
     protected $casts    = [
-        'created_group' => 'date',
-        'day_payment'   => DayWeekEnum::class
+        'created_group'         => 'date',
+        'state_archived_group'  => 'boolean',
+        'day_payment'           => DayWeekEnum::class
     ];
 
-   /*  public function beneficiary()
+    protected $appends  = ['day_payment_name'];
+
+    public function nameGroup(): Attribute
     {
-        return $this->belongsTo(Beneficiary::class,'id_beneficiary','id_beneficiary');
-    } */
+        return new Attribute(
+            get: fn ($value) => ucfirst($value),
+            set: fn ($value) => Str::lower($value),
+        );
+    }
+
+    public function dayPaymentName(): Attribute
+    {
+        return new Attribute(
+            get: fn () => DayWeekEnum::getLabel($this->day_payment),
+        );
+    }
+
+    public function beneficiary()
+    {
+        return $this->belongsTo(Beneficiary::class, 'id_beneficiary', 'id_beneficiary');
+    }
 }

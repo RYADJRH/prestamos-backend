@@ -10,6 +10,10 @@ return [
     'name_file_ine_borrower'            => 'ine del prestatista',
     'name_file_proof_address_borrower'  => 'comprobante de domicilio del prestatista',
     'id_beneficiary'                    => 'identificador del beneficiario',
-    'search'                            => 'campo de busqueda'
+    'search'                            => 'campo de busqueda',
+
+    'name_group'                        => 'nombre del grupo',
+    'created_group'                     => 'fecha de creación',
+    'day_payment'                       => 'dia de pago',
 
 ];

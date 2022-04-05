@@ -7,6 +7,7 @@ use App\Http\Controllers\Auth\LogoutController;
 use App\Http\Controllers\Auth\UserController;
 use App\Http\Controllers\BeneficiaryController;
 use App\Http\Controllers\BorrowerController;
+use App\Http\Controllers\GroupController;
 
 /*
 |--------------------------------------------------------------------------
@@ -40,5 +41,13 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::get('/borrower/beneficiary/{beneficiary}', 'getAll');
         Route::post('/borrower/{borrower}', 'update');
         Route::delete('/borrower/{borrower}', 'delete');
+    });
+    /* Group */
+    Route::controller(GroupController::class)->group(function () {
+        Route::post('/group', 'create');
+        Route::delete('/group/{group}', 'delete');
+        Route::put('/group/{group}', 'update');
+        Route::get('/group/{beneficiary}', [GroupController::class, 'getAll']);
+
     });
 });

@@ -7,7 +7,6 @@ use App\Observers\BeneficiaryObserver;
 
 use App\Models\Borrower;
 use App\Observers\BorrowerObserver;
-
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
