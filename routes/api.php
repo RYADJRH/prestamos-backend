@@ -47,7 +47,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::post('/group', 'create');
         Route::delete('/group/{group}', 'delete');
         Route::put('/group/{group}', 'update');
-        Route::get('/group/{beneficiary}', [GroupController::class, 'getAll']);
-
+        Route::get('/group/{beneficiary}', 'getAll');
+        Route::get('/group/borrowers/{group:slug}', 'individualGroup');
     });
 });

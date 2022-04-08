@@ -26,3 +26,4 @@ if (!function_exists('create_acronym')) {
         return $acronym;
     }
 }
+

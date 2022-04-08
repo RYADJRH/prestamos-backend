@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enum\DayWeekEnum;
+use Cviebrock\EloquentSluggable\Sluggable;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -10,7 +11,7 @@ use Illuminate\Support\Str;
 
 class Group extends Model
 {
-    use HasFactory;
+    use HasFactory, Sluggable;
 
     protected $table        = 'groups';
     protected $primaryKey   = 'id_group';
@@ -18,12 +19,14 @@ class Group extends Model
     protected $guarded  = [
         'id_group',
         'day_payment',
+        'slug',
+        'state_archived_group'
     ];
 
     protected $fillable = [
         'name_group',
         'created_group',
-        'state_archived_group',
+        'day_payment',
         'id_beneficiary'
     ];
 
@@ -34,6 +37,18 @@ class Group extends Model
     ];
 
     protected $appends  = ['day_payment_name'];
+
+    /**
+     * @return array
+     */
+    public function sluggable(): array
+    {
+        return [
+            'slug' => [
+                'source' => 'name_group'
+            ]
+        ];
+    }
 
     public function nameGroup(): Attribute
     {

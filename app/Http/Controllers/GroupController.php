@@ -8,6 +8,7 @@ use App\Models\Beneficiary;
 use App\Models\Group;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class GroupController extends Controller
 {
@@ -40,8 +41,10 @@ class GroupController extends Controller
     public function update(GroupUpdateRequest $request, Group $group): JsonResponse
     {
         $this->authorize('update', $group);
+        $group->slug = null;
         $group->update([
             'name_group'    => $request->name_group,
+            'created_group' => $request->created_group,
             'day_payment'   => $request->day_payment
         ]);
         return new JsonResponse(['group' => $group]);
@@ -55,12 +58,18 @@ class GroupController extends Controller
 
         $perPage = 6;
         $groups = $beneficiary->groups()
-            ->where(function ($query) use ($search) {
+            ->where('state_archived_group', $archived)
+            ->where(function ($query) use ($search, $archived) {
                 $query->where('name_group', 'LIKE', "%{$search}%");
             })
-            ->where('state_archived_group', '==', $archived)
             ->orderBy('id_group', 'DESC')
             ->paginate($perPage);
         return new JsonResponse(['groups' => $groups]);
+    }
+
+    public function individualGroup(Group $group): JsonResponse
+    {
+        
+        return new JsonResponse(['group' => $group]);
     }
 }

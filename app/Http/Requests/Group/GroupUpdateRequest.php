@@ -22,6 +22,7 @@ class GroupUpdateRequest extends FormRequest
     {
         return [
             'name_group'    => __('attributes.name_group'),
+            'created_group' => __('attributes.created_group'),
             'day_payment'   => __('attributes.day_payment'),
         ];
     }
@@ -35,6 +36,7 @@ class GroupUpdateRequest extends FormRequest
     {
         return [
             'name_group'        => ['required', 'string', 'max:100'],
+            'created_group'     => ['required', 'date_format:Y-m-d'],
             'day_payment'       => ['required', 'integer', new Enum(DayWeekEnum::class)],
         ];
     }
