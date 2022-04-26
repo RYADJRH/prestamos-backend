@@ -7,7 +7,10 @@ use App\Models\Beneficiary;
 use App\Models\Borrower;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-
+use App\Models\BorrowerExtend;
+use App\Models\Group;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class BorrowerController extends Controller
 {
@@ -21,7 +24,7 @@ class BorrowerController extends Controller
 
         $this->authorize('create', [Borrower::class, $id_beneficiary]);
 
-        $borrower = new Borrower();
+        $borrower = new BorrowerExtend();
         $borrower->name_borrower        = $name_borrower;
         $borrower->last_name_borrower   = $last_name_borrower;
         $borrower->id_beneficiary       = $id_beneficiary;
@@ -45,20 +48,18 @@ class BorrowerController extends Controller
     public function getAll(Request $request, Beneficiary $beneficiary): JsonResponse
     {
         $search = $request->input('search', '');
+        $extend = filter_var($request->extend, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE);
         $this->authorize('viewAny', [Borrower::class, $beneficiary]);
 
-        $borrowers = $beneficiary->borrowers()
-            ->where(function ($query) use ($search) {
-                $query->where('name_borrower', 'LIKE', "%{$search}%")
-                    ->orWhere('last_name_borrower', 'LIKE', "%{$search}%");
-            })
+        $borrowers = $extend ?  $beneficiary->borrowersExtend() : $beneficiary->borrowers();
+        $borrowers = $borrowers
+            ->where(DB::raw("concat(name_borrower, ' ', last_name_borrower)"), 'LIKE', "%" . $search . "%")
             ->orderBy('id_borrower', 'DESC')
             ->paginate(5);
-
         return new JsonResponse(['borrowers' => $borrowers]);
     }
 
-    public function update(BorrowerRequest $request, Borrower $borrower): JsonResponse
+    public function update(BorrowerRequest $request, BorrowerExtend $borrower): JsonResponse
     {
         $id_beneficiary                     = $request->id_beneficiary;
         $name_borrower                      = $request->name_borrower;
@@ -69,7 +70,8 @@ class BorrowerController extends Controller
         $remove_file_ine_borrower           = $request->input('remove_file_ine_borrower', false);
         $remove_file_proof_address_borrower = $request->input('remove_file_proof_address_borrower', false);
 
-        $this->authorize('update', [$borrower, $id_beneficiary]);
+        $authorize = new Borrower($borrower->toArray());
+        $this->authorize('update', [$authorize, $id_beneficiary]);
 
         $borrower->update([
             'name_borrower'         => $name_borrower,
@@ -101,5 +103,23 @@ class BorrowerController extends Controller
         $this->authorize('delete', $borrower);
         $borrower->delete();
         return new JsonResponse(['borrower' => $borrower]);
+    }
+
+
+    public function listBorrowerAddGroup(Request $request, Group $group): JsonResponse
+    {
+        $search = $request->input('search', '');
+        $this->authorize('viewAnyAddBorrower', $group);
+        $beneficiary = $group->beneficiary;
+        $borrowers = $beneficiary->borrowers()
+            ->where(DB::raw("concat(name_borrower, ' ', last_name_borrower)"), 'LIKE', "%" . $search . "%")
+            ->orderBy('name_borrower', 'DESC')
+            ->paginate(3)
+            ->through(function ($borrower) use ($group) {
+                $created = $group->groupBorrowers()->where('id_borrower', $borrower->id_borrower)->exists();
+                $borrower->agregado = $created;
+                return $borrower;
+            });
+        return new JsonResponse(['borrowers' => $borrowers]);
     }
 }

@@ -40,11 +40,15 @@ class Beneficiary extends Model
         );
     }
 
+    public function borrowersExtend()
+    {
+        return $this->hasMany(BorrowerExtend::class, 'id_beneficiary', 'id_beneficiary');
+    }
+
     public function borrowers()
     {
         return $this->hasMany(Borrower::class, 'id_beneficiary', 'id_beneficiary');
     }
-
     public function user()
     {
         return $this->belongsTo(User::class, 'id_user', 'id_user');
@@ -54,5 +58,4 @@ class Beneficiary extends Model
     {
         return $this->hasMany(Group::class, 'id_beneficiary', 'id_beneficiary');
     }
-
 }

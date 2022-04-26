@@ -2,13 +2,15 @@
 
 namespace App\Http\Controllers;
 
+use App\Enum\StatePaymentEnum;
 use App\Http\Requests\Group\GroupRequest;
 use App\Http\Requests\Group\GroupUpdateRequest;
+use App\Http\Requests\Group\MemberAddRequest;
 use App\Models\Beneficiary;
+use App\Models\Borrower;
 use App\Models\Group;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
 
 class GroupController extends Controller
 {
@@ -67,9 +69,74 @@ class GroupController extends Controller
         return new JsonResponse(['groups' => $groups]);
     }
 
-    public function individualGroup(Group $group): JsonResponse
+    public function group(Request $request, Group $group): JsonResponse
     {
-        
-        return new JsonResponse(['group' => $group]);
+        $this->authorize('view', $group);
+        $simple = filter_var($request->simple, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE);
+
+        if ($simple) {
+            return new JsonResponse(['group' => $group]);
+        }
+
+        $payments        = $group->paymentsPaid;
+        $amount_charged  = $payments->sum('amount_payment');
+        $group->unsetRelation('paymentsPaid');
+
+        $group_borrower  = $group->groupBorrowers;
+        $amount_borrow   = $group_borrower->sum('amount_borrow');
+        $amount_interest = $group_borrower->sum('amount_interest');
+
+        $amount_total    =  $amount_borrow +  $amount_interest;
+        $group->unsetRelation('groupBorrowers');
+
+        return new JsonResponse([
+            'group'             => $group,
+            'number_members'    => $group->borrowers()->count(),
+            'amount_charged'    => round(($amount_charged / 100), 2),
+            'amount_borrow'     => round($amount_borrow / 100, 2),
+            'amount_interest'   => round($amount_interest / 100, 2),
+            'amount_total'      => round($amount_total / 100, 2)
+        ]);
+    }
+
+    public function addMember(MemberAddRequest $request): JsonResponse
+    {
+        $slug_group         = $request->slug_group;
+        $id_borrower        = $request->id_borrower;
+        $amount_borrow      = $request->amount_borrow;
+        $amount_interest    = $request->amount_interest;
+
+        $group    = Group::where('slug', $slug_group)->first();
+        $borrower = Borrower::where('id_borrower', $id_borrower)->first();
+        $this->authorize('addMember', [$group, $borrower]);
+
+        $memberIsRegister = $group->borrowers()->where('borrowers.id_borrower', $borrower->id_borrower)->first();
+
+        if ($memberIsRegister)
+            return new JsonResponse(['isRegister' =>  true], 302);
+
+        $in_proccess    = StatePaymentEnum::STATUS_INPROCCESS->value;
+        $group->borrowers()->attach($borrower->id_borrower, [
+            'state_borrow' => $in_proccess, 'amount_borrow' => $amount_borrow, 'amount_interest' => $amount_interest
+        ]);
+
+        $member = $group->borrowers()->where('borrowers.id_borrower', $borrower->id_borrower)->first();
+        return new JsonResponse(['member' =>  $member]);
+    }
+
+    public function groupMembers(Group $group): JsonResponse
+    {
+        $this->authorize('view', $group);
+        $borrowers = $group->borrowers()
+            ->paginate(5)
+            ->through(function ($borrower) {
+                $amount_payment =  $borrower->group_borrower->paymentsPaid->sum('amount_payment');
+                $borrower->group_borrower->unsetRelation('paymentsPaid');
+                $borrower->group_borrower->amount_payment_total         =  $amount_payment;
+                $borrower->group_borrower->amount_payment_total_decimal =  round($amount_payment / 100, 2);
+                return $borrower;
+            });
+
+        return new JsonResponse(['borrowers' => $borrowers]);
     }
 }

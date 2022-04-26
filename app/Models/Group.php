@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enum\DayWeekEnum;
+use App\Enum\StatePaymentEnum;
 use Cviebrock\EloquentSluggable\Sluggable;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -68,5 +69,25 @@ class Group extends Model
     public function beneficiary()
     {
         return $this->belongsTo(Beneficiary::class, 'id_beneficiary', 'id_beneficiary');
+    }
+
+
+    public  function borrowers()
+    {
+        return $this->belongsToMany(Borrower::class, GroupBorrower::class, 'id_group', 'id_borrower')
+            ->as('group_borrower')
+            ->withPivot(['id_group_borrower', 'amount_borrow', 'amount_interest', 'state_borrow'])
+            ->withTimestamps();
+    }
+
+    public function groupBorrowers()
+    {
+        return $this->hasMany(GroupBorrower::class, 'id_group', 'id_group');
+    }
+
+    public function paymentsPaid()
+    {
+        return $this->hasManyThrough(Payment::class, Payslip::class, 'id_group', 'id_payslip', 'id_group', 'id_payslip')
+            ->where('state_payment', '=', StatePaymentEnum::STATUS_PAID);
     }
 }

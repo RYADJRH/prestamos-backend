@@ -25,5 +25,5 @@ class Payslip extends Model
         'created_payslip' => 'date'
     ];
 
-    
+
 }

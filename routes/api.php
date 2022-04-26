@@ -41,13 +41,21 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::get('/borrower/beneficiary/{beneficiary}', 'getAll');
         Route::post('/borrower/{borrower}', 'update');
         Route::delete('/borrower/{borrower}', 'delete');
+        Route::get('/borrower/add/group/{group:slug}', 'listBorrowerAddGroup');
+
     });
+
     /* Group */
     Route::controller(GroupController::class)->group(function () {
         Route::post('/group', 'create');
         Route::delete('/group/{group}', 'delete');
         Route::put('/group/{group}', 'update');
         Route::get('/group/{beneficiary}', 'getAll');
-        Route::get('/group/borrowers/{group:slug}', 'individualGroup');
+        Route::get('/group/slug/{group:slug}', 'group');
+
+
+        Route::post('/group/member', 'addMember');
+        Route::get('/group/members/{group:slug}', 'groupMembers');
+
     });
 });

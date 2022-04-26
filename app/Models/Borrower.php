@@ -28,8 +28,7 @@ class Borrower extends Model
     ];
 
     protected $hidden = ['name_file_ine_borrower', 'name_file_proof_address_borrower'];
-    protected $appends = ['full_name', 'name_file_ine_borrower_path', 'name_file_proof_address_borrower_path'];
-
+    protected $appends = ['full_name'];
     public function nameBorrower(): Attribute
     {
         return new Attribute(
@@ -49,7 +48,7 @@ class Borrower extends Model
     public function fullName(): Attribute
     {
         return new Attribute(
-            get: fn ($value,$attributes) => ucwords($attributes['name_borrower'] .' '. $attributes['last_name_borrower']),
+            get: fn ($value, $attributes) => ucwords($attributes['name_borrower'] . ' ' . $attributes['last_name_borrower']),
         );
     }
 
@@ -72,12 +71,13 @@ class Borrower extends Model
         return $this->belongsTo(Beneficiary::class, 'id_beneficiary', 'id_beneficiary');
     }
 
-
-    /*
-
-
-    public function individualBorrow()
+    public function groups()
     {
-        return $this->hasMany(IndividualBorrow::class, 'id_borrower', 'id_borrower');
-    } */
+        return $this->belongsToMany(Group::class, GroupBorrower::class, 'id_borrower', 'id_group');
+    }
+}
+
+class BorrowerExtend extends Borrower
+{
+    protected $appends = ['name_file_ine_borrower_path', 'name_file_proof_address_borrower_path'];
 }

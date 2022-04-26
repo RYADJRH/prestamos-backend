@@ -2,14 +2,27 @@
 
 namespace App\Policies;
 
+use App\Models\Borrower;
 use App\Models\Group;
 use App\Models\User;
 use Illuminate\Auth\Access\HandlesAuthorization;
+use Illuminate\Support\Facades\Log;
 
 class GroupPolicy
 {
     use HandlesAuthorization;
 
+    public function addMember(User $user, Group $group, Borrower $borrower)
+    {
+        return $group->id_beneficiary == $borrower->id_beneficiary;
+    }
+
+    public function viewAnyAddBorrower(User $user, Group $group)
+    {
+        $beneficiary = $group->beneficiary;
+        $group->unsetRelation('beneficiary');
+        return $user->id_user == $beneficiary->id_user;
+    }
     /**
      * Determine whether the user can view any models.
      *
@@ -30,7 +43,9 @@ class GroupPolicy
      */
     public function view(User $user, Group $group)
     {
-        //
+        $beneficiary = $group->beneficiary;
+        $group->unsetRelation('beneficiary');
+        return $user->id_user == $beneficiary->id_user;
     }
 
     /**
