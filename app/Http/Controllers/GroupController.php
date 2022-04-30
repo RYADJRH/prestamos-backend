@@ -229,10 +229,16 @@ class GroupController extends Controller
     {
         $search  = $request->input('search', '');
         $payslips = $group->payslips()
-        ->where('name_payslip', 'LIKE', "%" . $search . "%")
-        ->orderBy('name_payslip', 'DESC')
-        ->paginate(5);
+            ->where('name_payslip', 'LIKE', "%" . $search . "%")
+            ->orderBy('name_payslip', 'DESC')
+            ->paginate(5);
 
         return new JsonResponse(['payslips' => $payslips]);
+    }
+
+    public function deletePayslip(Payslip $payslip): JsonResponse
+    {
+        $isDeleted = $payslip->delete();
+        return new JsonResponse(['isDeleted' => $isDeleted]);
     }
 }

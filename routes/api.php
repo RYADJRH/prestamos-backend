@@ -62,6 +62,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
         Route::post('/group/payslip', 'addPaySlip');
         Route::put('/group/payslip/{payslip}', 'updatePayslip');
+        Route::delete('/group/payslip/{payslip}', 'deletePayslip');
         Route::get('/group/payslip/{group:slug}', 'listPayslips');
     });
 });
