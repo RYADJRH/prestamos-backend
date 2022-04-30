@@ -42,7 +42,6 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::post('/borrower/{borrower}', 'update');
         Route::delete('/borrower/{borrower}', 'delete');
         Route::get('/borrower/add/group/{group:slug}', 'listBorrowerAddGroup');
-
     });
 
     /* Group */
@@ -53,9 +52,16 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::get('/group/{beneficiary}', 'getAll');
         Route::get('/group/slug/{group:slug}', 'group');
 
-
+        /* members */
         Route::post('/group/member', 'addMember');
+        Route::put('/group/member/{groupBorrower}',  'updateMember');
+        Route::delete('/group/member/{groupBorrower}',  'deleteMember');
         Route::get('/group/members/{group:slug}', 'groupMembers');
 
+        /* payslip */
+
+        Route::post('/group/payslip', 'addPaySlip');
+        Route::put('/group/payslip/{payslip}', 'updatePayslip');
+        Route::get('/group/payslip/{group:slug}', 'listPayslips');
     });
 });

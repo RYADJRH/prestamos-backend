@@ -90,4 +90,9 @@ class Group extends Model
         return $this->hasManyThrough(Payment::class, Payslip::class, 'id_group', 'id_payslip', 'id_group', 'id_payslip')
             ->where('state_payment', '=', StatePaymentEnum::STATUS_PAID);
     }
+
+    public function payslips()
+    {
+        return $this->hasMany(Payslip::class, 'id_group', 'id_group');
+    }
 }

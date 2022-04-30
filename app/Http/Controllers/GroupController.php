@@ -3,14 +3,20 @@
 namespace App\Http\Controllers;
 
 use App\Enum\StatePaymentEnum;
+use App\Http\Requests\Group\AddPayslipRequest;
 use App\Http\Requests\Group\GroupRequest;
 use App\Http\Requests\Group\GroupUpdateRequest;
 use App\Http\Requests\Group\MemberAddRequest;
+use App\Http\Requests\Group\MemberUpdateRequest;
+use App\Http\Requests\Group\UpdatePayslipRequest;
 use App\Models\Beneficiary;
 use App\Models\Borrower;
 use App\Models\Group;
+use App\Models\GroupBorrower;
+use App\Models\Payslip;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class GroupController extends Controller
 {
@@ -99,6 +105,8 @@ class GroupController extends Controller
         ]);
     }
 
+    /* TODO:MIEMBROS */
+
     public function addMember(MemberAddRequest $request): JsonResponse
     {
         $slug_group         = $request->slug_group;
@@ -121,13 +129,61 @@ class GroupController extends Controller
         ]);
 
         $member = $group->borrowers()->where('borrowers.id_borrower', $borrower->id_borrower)->first();
+        if ($member) {
+            $amount_payment =  $member->group_borrower->paymentsPaid->sum('amount_payment');
+            $member->group_borrower->unsetRelation('paymentsPaid');
+            $member->group_borrower->amount_payment_total         =  $amount_payment;
+            $member->group_borrower->amount_payment_total_decimal =  round($amount_payment / 100, 2);
+        }
         return new JsonResponse(['member' =>  $member]);
     }
 
-    public function groupMembers(Group $group): JsonResponse
+    public function updateMember(MemberUpdateRequest $request, GroupBorrower $groupBorrower): JsonResponse
     {
+
+        $amount_borrow      = $request->amount_borrow;
+        $amount_interest    = $request->amount_interest;
+        $id_borrower        = $groupBorrower->id_borrower;
+
+        $group    = Group::where('id_group', $groupBorrower->id_group)->first();
+        $borrower = Borrower::where('id_borrower', $id_borrower)->first();
+
+        $this->authorize('updateMember', [$group, $borrower]);
+
+        $groupBorrower->update(['amount_borrow' =>  $amount_borrow, 'amount_interest' => $amount_interest]);
+        $member = $group->borrowers()->where('borrowers.id_borrower', $id_borrower)->first();
+
+        if ($member) {
+            $amount_payment =  $member->group_borrower->paymentsPaid->sum('amount_payment');
+            $member->group_borrower->unsetRelation('paymentsPaid');
+            $member->group_borrower->amount_payment_total         =  $amount_payment;
+            $member->group_borrower->amount_payment_total_decimal =  round($amount_payment / 100, 2);
+        }
+
+        return new JsonResponse(['member' => $member]);
+    }
+
+    public function deleteMember(GroupBorrower $groupBorrower): JsonResponse
+    {
+
+        $id_group       = $groupBorrower->id_group;
+        $id_borrower    = $groupBorrower->id_borrower;
+
+        $group    = Group::where('id_group', $id_group)->first();
+        $borrower = Borrower::where('id_borrower', $id_borrower)->first();
+        $this->authorize('deleteMember', [$group, $borrower]);
+        $isDeleted = $groupBorrower->delete();
+
+        return new JsonResponse(['isDeleted' => (bool) $isDeleted]);
+    }
+
+    public function groupMembers(Request $request, Group $group): JsonResponse
+    {
+        $search = $request->input('search', '');
         $this->authorize('view', $group);
         $borrowers = $group->borrowers()
+            ->where(DB::raw("concat(name_borrower, ' ', last_name_borrower)"), 'LIKE', "%" . $search . "%")
+            ->orderBy('name_borrower', 'DESC')
             ->paginate(5)
             ->through(function ($borrower) {
                 $amount_payment =  $borrower->group_borrower->paymentsPaid->sum('amount_payment');
@@ -138,5 +194,45 @@ class GroupController extends Controller
             });
 
         return new JsonResponse(['borrowers' => $borrowers]);
+    }
+
+    /* payslip */
+
+    public function addPaySlip(AddPayslipRequest $request): JsonResponse
+    {
+
+        $name_payslip       = $request->name_payslip;
+        $created_payslip    = $request->created_payslip;
+        $slug_group         = $request->slug_group;
+
+        $group = Group::where('slug', $slug_group)->first();
+
+        $payslip = new Payslip();
+        $payslip->name_payslip      = $name_payslip;
+        $payslip->created_payslip   = $created_payslip;
+
+        $group->payslips()->save($payslip);
+
+        return new JsonResponse(['payslip' => $payslip]);
+    }
+
+    public function updatePayslip(UpdatePayslipRequest $request, Payslip $payslip): JsonResponse
+    {
+        $name_payslip       = $request->name_payslip;
+        $created_payslip    = $request->created_payslip;
+        $payslip->update(['name_payslip' => $name_payslip, 'created_payslip' => $created_payslip]);
+
+        return new JsonResponse(['payslip' => $payslip]);
+    }
+
+    public function listPayslips(Request $request, Group $group): JsonResponse
+    {
+        $search  = $request->input('search', '');
+        $payslips = $group->payslips()
+        ->where('name_payslip', 'LIKE', "%" . $search . "%")
+        ->orderBy('name_payslip', 'DESC')
+        ->paginate(5);
+
+        return new JsonResponse(['payslips' => $payslips]);
     }
 }

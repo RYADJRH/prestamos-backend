@@ -19,6 +19,9 @@ return [
     'slug_group'                        => 'slug del grupo',
     'id_borrower'                       => 'identificador del prestatario',
     'amount_borrow'                     => 'monto del prestamo',
-    'amount_interest'                   => 'monto del interes'
+    'amount_interest'                   => 'monto del interes',
+
+    'created_payslip'                   => 'fecha de la hoja de pago',
+    'name_payslip'                      => 'nombre de la hoja de pago'
 
 ];

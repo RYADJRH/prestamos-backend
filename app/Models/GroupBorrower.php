@@ -34,21 +34,21 @@ class GroupBorrower extends Pivot
     public function amountPay(): Attribute
     {
         return new Attribute(
-            get: fn ($value, $attributes) => ($attributes['amount_borrow'] + $attributes['amount_interest'])
+            get: fn ($value, $attributes) => round($attributes['amount_borrow'] + $attributes['amount_interest'], 2)
         );
     }
-    
+
     public function amountPayDecimal(): Attribute
     {
         return new Attribute(
-            get: fn ($value, $attributes) => ($attributes['amount_borrow'] + $attributes['amount_interest']) / 100
+            get: fn ($value, $attributes) => round(($attributes['amount_borrow'] + $attributes['amount_interest']) / 100,2)
         );
     }
 
     public function amountBorrow(): Attribute
     {
         return new Attribute(
-            set: fn ($value) => $value * 100,
+            set: fn ($value) => round($value * 100, 2),
         );
     }
 
@@ -62,7 +62,7 @@ class GroupBorrower extends Pivot
     public function amountInterest(): Attribute
     {
         return new Attribute(
-            set: fn ($value) => $value * 100,
+            set: fn ($value) => round($value * 100, 2),
         );
     }
 
