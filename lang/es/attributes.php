@@ -22,6 +22,9 @@ return [
     'amount_interest'                   => 'monto del interes',
 
     'created_payslip'                   => 'fecha de la hoja de pago',
-    'name_payslip'                      => 'nombre de la hoja de pago'
+    'name_payslip'                      => 'nombre de la hoja de pago',
+
+    'slug_payslip'                      => 'slug de la hoja de pago',
+    'payments'                          => 'datos de los abonos',
 
 ];

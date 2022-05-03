@@ -41,7 +41,7 @@ class GroupBorrower extends Pivot
     public function amountPayDecimal(): Attribute
     {
         return new Attribute(
-            get: fn ($value, $attributes) => round(($attributes['amount_borrow'] + $attributes['amount_interest']) / 100,2)
+            get: fn ($value, $attributes) => round(($attributes['amount_borrow'] + $attributes['amount_interest']) / 100, 2)
         );
     }
 
@@ -71,6 +71,10 @@ class GroupBorrower extends Pivot
         return new Attribute(
             get: fn ($value, $attributes) => round(($attributes['amount_interest'] > 0 ? $attributes['amount_interest'] / 100 : 0), 2)
         );
+    }
+    public function payments()
+    {
+        return $this->hasMany(Payment::class, 'id_group_borrower', 'id_group_borrower');
     }
 
     public function paymentsPaid()

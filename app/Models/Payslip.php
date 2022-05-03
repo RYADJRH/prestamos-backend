@@ -10,7 +10,7 @@ use Illuminate\Support\Str;
 
 class Payslip extends Model
 {
-    use HasFactory,sluggable;
+    use HasFactory, sluggable;
 
     protected $table        = 'payslips';
     protected $primaryKey   = 'id_payslip';
@@ -29,7 +29,7 @@ class Payslip extends Model
         'created_payslip' => 'date'
     ];
 
-      /**
+    /**
      * @return array
      */
     public function sluggable(): array
@@ -49,5 +49,13 @@ class Payslip extends Model
         );
     }
 
+    public function payments()
+    {
+        return $this->hasMany(Payment::class,'id_payslip','id_payslip');
+    }
 
+    public function group()
+    {
+        return $this->belongsTo(Group::class, 'id_group', 'id_group');
+    }
 }

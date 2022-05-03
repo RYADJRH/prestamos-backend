@@ -8,6 +8,7 @@ use App\Http\Controllers\Auth\UserController;
 use App\Http\Controllers\BeneficiaryController;
 use App\Http\Controllers\BorrowerController;
 use App\Http\Controllers\GroupController;
+use App\Http\Controllers\PayslipController;
 
 /*
 |--------------------------------------------------------------------------
@@ -64,5 +65,14 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::put('/group/payslip/{payslip}', 'updatePayslip');
         Route::delete('/group/payslip/{payslip}', 'deletePayslip');
         Route::get('/group/payslip/{group:slug}', 'listPayslips');
+    });
+
+    /* Payslip */
+
+    Route::controller(PayslipController::class)->group(function () {
+        Route::get('/payslip/{payslip:slug}', 'getPayslip');
+        Route::get('/payslip/payments/{payslip:slug}', 'getPayments');
+        Route::get('/payslip/payments/member/{payslip:slug}', 'addPaymentsMemberPayslip');
+        Route::post('/payslip/payments/member', 'registerPaymentsPayslip');
     });
 });

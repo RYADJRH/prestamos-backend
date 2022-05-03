@@ -75,6 +75,12 @@ class Borrower extends Model
     {
         return $this->belongsToMany(Group::class, GroupBorrower::class, 'id_borrower', 'id_group');
     }
+
+
+    public function payments()
+    {
+        return $this->hasManyThrough(Payment::class, GroupBorrower::class, 'id_borrower', 'id_group_borrower');
+    }
 }
 
 class BorrowerExtend extends Borrower
