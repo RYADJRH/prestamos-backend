@@ -17,6 +17,7 @@ class Payment extends Model
     protected $guarded  = [
         'id_payment',
     ];
+
     protected $fillable = [
         'amount_payment',
         'state_payment',
@@ -29,6 +30,7 @@ class Payment extends Model
         'created_payment'   => 'date',
         'state_payment'     => StatePaymentEnum::class
     ];
+
     protected $appends = ['amount_payment_decimal'];
 
     public function amountPayment(): Attribute
@@ -48,5 +50,10 @@ class Payment extends Model
     public function borrower()
     {
         return $this->hasOneThrough(Borrower::class, GroupBorrower::class, 'id_group_borrower', 'id_borrower', 'id_group_borrower', 'id_borrower');
+    }
+
+    public function payslip()
+    {
+        return $this->belongsTo(Payslip::class, 'id_payslip', 'id_payslip');
     }
 }

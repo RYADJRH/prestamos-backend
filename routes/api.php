@@ -72,7 +72,12 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::controller(PayslipController::class)->group(function () {
         Route::get('/payslip/{payslip:slug}', 'getPayslip');
         Route::get('/payslip/payments/{payslip:slug}', 'getPayments');
+
         Route::get('/payslip/payments/member/{payslip:slug}', 'addPaymentsMemberPayslip');
         Route::post('/payslip/payments/member', 'registerPaymentsPayslip');
+
+        Route::delete('/payslip/payments/member/{payments:id_payment}', 'deletePaymentPasyslip');
+        Route::put('/payslip/payments/member/{payments:id_payment}', 'updatePaymentPayslip');
+        Route::post('/payslip/payments/status', 'changeStatusPayment');
     });
 });

@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Enum\StatePaymentEnum;
+use App\Http\Requests\Payslip\ChangeStatusRequest;
 use App\Http\Requests\Payslip\RegisterPaymentsRequest;
+use App\Http\Requests\Payslip\UpdatePaymentRequest;
 use App\Models\Payment;
 use App\Models\Payslip;
 use Carbon\Carbon;
@@ -81,7 +83,7 @@ class PayslipController extends Controller
         $payments       = $request->payments;
         $slug_payslip   = $request->slug_payslip;
         $payslip  = Payslip::where('slug', $slug_payslip)->first();
-
+        $this->authorize('view', $payslip);
 
         $createPayments = array_map(function ($payment) {
             return new Payment([
@@ -90,11 +92,47 @@ class PayslipController extends Controller
                 'state_payment'     => StatePaymentEnum::STATUS_PAID,
                 'created_payment'   => Carbon::now()
             ]);
-
         }, $payments);
 
         $payslip->payments()->saveMany($createPayments);
 
         return new JsonResponse(['payslip' => $createPayments]);
+    }
+
+    public function deletePaymentPasyslip(Payment $payments): JsonResponse
+    {
+        $payslip = $payments->payslip;
+        $this->authorize('view', $payslip);
+
+        $isDeleted = $payments->delete();
+        return new JsonResponse(['isDeleted' => $isDeleted]);
+    }
+
+    public function changeStatusPayment(ChangeStatusRequest $request): JsonResponse
+    {
+        $status     = $request->status;
+        $id_payment = $request->id_payment;
+
+        $payment = Payment::find($id_payment);
+        $payslip = $payment->payslip;
+        $this->authorize('view', $payslip);
+
+        $payment->update(['state_payment' => $status]);
+
+        return new JsonResponse(['state_payment' => $payment->state_payment]);
+    }
+
+    public function updatePaymentPayslip(UpdatePaymentRequest $request, Payment $payments): JsonResponse
+    {
+        $amount_payment = $request->amount_payment;
+        $payslip = $payments->payslip;
+        $this->authorize('view', $payslip);
+
+        $payments->update(['amount_payment' => $amount_payment]);
+        
+        return new JsonResponse([
+            'amount_payment' => $payments->amount_payment,
+            'amount_payment_decimal' => $payments->amount_payment_decimal
+        ]);
     }
 }

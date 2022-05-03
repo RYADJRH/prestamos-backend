@@ -27,4 +27,8 @@ return [
     'slug_payslip'                      => 'slug de la hoja de pago',
     'payments'                          => 'datos de los abonos',
 
+    'status'                            => 'estado del pago',
+    'id_payment'                        => 'identificador del pago',
+    'amount_payment'                    => 'monto del pago'
+
 ];
