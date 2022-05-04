@@ -9,6 +9,7 @@ use App\Http\Controllers\BeneficiaryController;
 use App\Http\Controllers\BorrowerController;
 use App\Http\Controllers\GroupController;
 use App\Http\Controllers\PayslipController;
+use App\Http\Controllers\Reports\PayslipReports;
 
 /*
 |--------------------------------------------------------------------------
@@ -79,5 +80,9 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::delete('/payslip/payments/member/{payments:id_payment}', 'deletePaymentPasyslip');
         Route::put('/payslip/payments/member/{payments:id_payment}', 'updatePaymentPayslip');
         Route::post('/payslip/payments/status', 'changeStatusPayment');
+    });
+
+    Route::controller(PayslipReports::class)->group(function () {
+        Route::get('/payslip/payments/report/empty/{payslip:slug}', 'reportPaymentEmpty');
     });
 });
