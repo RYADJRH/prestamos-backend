@@ -76,7 +76,7 @@ class Group extends Model
     {
         return $this->belongsToMany(Borrower::class, GroupBorrower::class, 'id_group', 'id_borrower')
             ->as('group_borrower')
-            ->withPivot(['id_group_borrower', 'amount_borrow', 'amount_interest', 'state_borrow'])
+            ->withPivot(['id_group_borrower', 'amount_borrow', 'amount_interest', 'state_borrow','number_payments'])
             ->withTimestamps();
     }
 
@@ -87,12 +87,9 @@ class Group extends Model
 
     public function paymentsPaid()
     {
-        return $this->hasManyThrough(Payment::class, Payslip::class, 'id_group', 'id_payslip', 'id_group', 'id_payslip')
+        return $this->hasManyThrough(Payment::class, GroupBorrower::class, 'id_group', 'id_group_borrower')
             ->where('state_payment', '=', StatePaymentEnum::STATUS_PAID);
     }
 
-    public function payslips()
-    {
-        return $this->hasMany(Payslip::class, 'id_group', 'id_group');
-    }
+
 }

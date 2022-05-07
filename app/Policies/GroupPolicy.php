@@ -18,11 +18,6 @@ class GroupPolicy
         return $group->id_beneficiary == $borrower->id_beneficiary;
     }
 
-    public function updateMember(User $user, Group $group, Borrower $borrower)
-    {
-        return $group->id_beneficiary == $borrower->id_beneficiary;
-    }
-
     public function addMember(User $user, Group $group, Borrower $borrower)
     {
         return $group->id_beneficiary == $borrower->id_beneficiary;

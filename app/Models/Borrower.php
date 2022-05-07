@@ -6,18 +6,20 @@ use App\Traits\BorrowerTraits;
 use App\Traits\S3Trait;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Cviebrock\EloquentSluggable\Sluggable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
 
 class Borrower extends Model
 {
-    use HasFactory, BorrowerTraits, S3Trait;
+    use HasFactory, BorrowerTraits, S3Trait, Sluggable;
 
     protected $table        = 'borrowers';
     protected $primaryKey   = 'id_borrower';
 
     protected $guarded = [
-        'id_borrower'
+        'id_borrower',
+        'slug'
     ];
     protected $fillable = [
         'name_borrower',
@@ -29,6 +31,19 @@ class Borrower extends Model
 
     protected $hidden = ['name_file_ine_borrower', 'name_file_proof_address_borrower'];
     protected $appends = ['full_name'];
+
+    /**
+     * @return array
+     */
+    public function sluggable(): array
+    {
+        return [
+            'slug' => [
+                'source' => 'name_borrower'
+            ]
+        ];
+    }
+
     public function nameBorrower(): Attribute
     {
         return new Attribute(
@@ -81,6 +96,7 @@ class Borrower extends Model
     {
         return $this->hasManyThrough(Payment::class, GroupBorrower::class, 'id_borrower', 'id_group_borrower');
     }
+
 }
 
 class BorrowerExtend extends Borrower

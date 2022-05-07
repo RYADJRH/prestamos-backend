@@ -16,44 +16,54 @@ class Payment extends Model
 
     protected $guarded  = [
         'id_payment',
+        'state_payment',
     ];
 
     protected $fillable = [
-        'amount_payment',
-        'state_payment',
-        'created_payment',
-        'id_payslip',
+        'num_payment',
+        'date_payment',
+        'amount_payment_period',
+        'remaining_balance',
         'id_group_borrower'
     ];
 
     protected $casts    = [
-        'created_payment'   => 'date',
+        'date_payment'   => 'date',
         'state_payment'     => StatePaymentEnum::class
     ];
 
-    protected $appends = ['amount_payment_decimal'];
+    protected $appends = ['amount_payment_period_decimal', 'remaining_balance_decimal'];
 
-    public function amountPayment(): Attribute
+    public function amountPaymentPeriod(): Attribute
     {
         return new Attribute(
             set: fn ($value) => round($value * 100, 2),
         );
     }
 
-    public function amountPaymentDecimal(): Attribute
+    public function amountPaymentPeriodDecimal(): Attribute
     {
         return new Attribute(
-            get: fn ($value, $attributes) => $attributes['amount_payment'] > 0 ? round($attributes['amount_payment'] / 100, 2) : 0,
+            get: fn ($value, $attributes) => $attributes['amount_payment_period'] > 0 ? round($attributes['amount_payment_period'] / 100, 2) : 0,
+        );
+    }
+
+    public function remainingBalance(): Attribute
+    {
+        return new Attribute(
+            set: fn ($value) => round($value * 100, 2),
+        );
+    }
+
+    public function remainingBalanceDecimal(): Attribute
+    {
+        return new Attribute(
+            get: fn ($value, $attributes) => $attributes['remaining_balance'] > 0 ? round($attributes['remaining_balance'] / 100, 2) : 0,
         );
     }
 
     public function borrower()
     {
         return $this->hasOneThrough(Borrower::class, GroupBorrower::class, 'id_group_borrower', 'id_borrower', 'id_group_borrower', 'id_borrower');
-    }
-
-    public function payslip()
-    {
-        return $this->belongsTo(Payslip::class, 'id_payslip', 'id_payslip');
     }
 }

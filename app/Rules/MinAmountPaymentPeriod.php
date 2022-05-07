@@ -1,0 +1,64 @@
+<?php
+
+namespace App\Rules;
+
+use Illuminate\Contracts\Validation\Rule;
+use Illuminate\Contracts\Validation\DataAwareRule;
+
+class MinAmountPaymentPeriod implements Rule, DataAwareRule
+{
+    /**
+     * All of the data under validation.
+     *
+     * @var array
+     */
+    protected $data = [];
+
+
+    /**
+     * Create a new rule instance.
+     *
+     * @return void
+     */
+    public function __construct()
+    {
+    }
+
+    /**
+     * Determine if the validation rule passes.
+     *
+     * @param  string  $attribute
+     * @param  mixed  $value
+     * @return bool
+     */
+    public function passes($attribute, $value)
+    {
+        $amount_borrow   = round($this->data['amount_borrow'] * 100, 2);
+        $amount_interest = round($this->data['amount_interest'] * 100, 2);
+        $sum_int_borrow  = round($amount_borrow + $amount_interest, 2);
+        $value           = round($value * 100, 2);
+        return $sum_int_borrow > $value;
+    }
+
+    /**
+     * Get the validation error message.
+     *
+     * @return string
+     */
+    public function message()
+    {
+        return trans('validation.min_amount_payment_period');
+    }
+
+    /**
+     * Set the data under validation.
+     *
+     * @param  array  $data
+     * @return $this
+     */
+    public function setData($data)
+    {
+        $this->data = $data;
+        return $this;
+    }
+}

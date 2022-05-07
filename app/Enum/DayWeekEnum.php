@@ -2,8 +2,6 @@
 
 namespace App\Enum;
 
-use Illuminate\Support\Facades\Log;
-
 enum DayWeekEnum: int
 {
     case LUNES     = 1;
@@ -12,7 +10,7 @@ enum DayWeekEnum: int
     case JUEVES    = 4;
     case VIERNES   = 5;
     case SABADO    = 6;
-    case DOMINGO   = 7;
+    case DOMINGO   = 0;
 
     public static function getLabel(self $value)
     {

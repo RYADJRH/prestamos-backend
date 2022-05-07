@@ -20,11 +20,10 @@ return [
     'id_borrower'                       => 'identificador del prestatario',
     'amount_borrow'                     => 'monto del prestamo',
     'amount_interest'                   => 'monto del interes',
+    'amount_payment_period'             => 'monto de pago por abono',
+    'date_init_payment'                 => 'fecha del primer pago',
+    'payment_every_n_weeks'             => 'periodo de pagos',
 
-    'created_payslip'                   => 'fecha de la hoja de pago',
-    'name_payslip'                      => 'nombre de la hoja de pago',
-
-    'slug_payslip'                      => 'slug de la hoja de pago',
     'payments'                          => 'datos de los abonos',
 
     'status'                            => 'estado del pago',

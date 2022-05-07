@@ -19,6 +19,7 @@ return new class extends Migration
             $table->string('last_name_borrower', 100);
             $table->string('name_file_ine_borrower');
             $table->string('name_file_proof_address_borrower');
+            $table->string('slug',255)->unique();
             $table->foreignId('id_beneficiary')->constrained('beneficiaries', 'id_beneficiary')->onDelete('cascade');
             $table->timestamps();
         });

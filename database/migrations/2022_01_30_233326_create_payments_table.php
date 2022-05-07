@@ -15,10 +15,11 @@ return new class extends Migration
     {
         Schema::create('payments', function (Blueprint $table) {
             $table->id('id_payment');
-            $table->bigInteger('amount_payment');
-            $table->string('state_payment', 15);
-            $table->dateTime('created_payment');
-            $table->foreignId('id_payslip')->constrained('payslips', 'id_payslip')->onDelete('cascade');
+            $table->integer('num_payment');
+            $table->string('state_payment', 15)->default('in_proccess');
+            $table->dateTime('date_payment');
+            $table->bigInteger('amount_payment_period');
+            $table->bigInteger('remaining_balance');
             $table->foreignId('id_group_borrower')->constrained('group_borrowers', 'id_group_borrower')->onDelete('cascade');
             $table->timestamps();
         });

@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AmortizationController;
 use Illuminate\Support\Facades\Route;
 
 use App\Http\Controllers\Auth\LoginController;
@@ -8,8 +9,6 @@ use App\Http\Controllers\Auth\UserController;
 use App\Http\Controllers\BeneficiaryController;
 use App\Http\Controllers\BorrowerController;
 use App\Http\Controllers\GroupController;
-use App\Http\Controllers\PayslipController;
-use App\Http\Controllers\Reports\PayslipReports;
 
 /*
 |--------------------------------------------------------------------------
@@ -55,34 +54,13 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::get('/group/slug/{group:slug}', 'group');
 
         /* members */
-        Route::post('/group/member', 'addMember');
-        Route::put('/group/member/{groupBorrower}',  'updateMember');
-        Route::delete('/group/member/{groupBorrower}',  'deleteMember');
         Route::get('/group/members/{group:slug}', 'groupMembers');
-
-        /* payslip */
-
-        Route::post('/group/payslip', 'addPaySlip');
-        Route::put('/group/payslip/{payslip}', 'updatePayslip');
-        Route::delete('/group/payslip/{payslip}', 'deletePayslip');
-        Route::get('/group/payslip/{group:slug}', 'listPayslips');
+        Route::post('/group/member', 'addMember');
+        Route::delete('/group/member/{groupBorrower}',  'deleteMember');
     });
 
-    /* Payslip */
-
-    Route::controller(PayslipController::class)->group(function () {
-        Route::get('/payslip/{payslip:slug}', 'getPayslip');
-        Route::get('/payslip/payments/{payslip:slug}', 'getPayments');
-
-        Route::get('/payslip/payments/member/{payslip:slug}', 'addPaymentsMemberPayslip');
-        Route::post('/payslip/payments/member', 'registerPaymentsPayslip');
-
-        Route::delete('/payslip/payments/member/{payments:id_payment}', 'deletePaymentPasyslip');
-        Route::put('/payslip/payments/member/{payments:id_payment}', 'updatePaymentPayslip');
-        Route::post('/payslip/payments/status', 'changeStatusPayment');
-    });
-
-    Route::controller(PayslipReports::class)->group(function () {
-        Route::get('/payslip/payments/report/empty/{payslip:slug}', 'reportPaymentEmpty');
+    /* Amortization */
+    Route::controller(AmortizationController::class)->group(function () {
+        Route::post('/amortization/group/calculated', 'fnCalculatedAmortizationGroup');
     });
 });

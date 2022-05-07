@@ -146,6 +146,7 @@ return [
             'rule-name' => 'custom-message',
         ],
     ],
+    'min_amount_payment_period' => 'The :attribute field must be less than the sum of the loan amount + interest amount.',
 
     /*
     |--------------------------------------------------------------------------

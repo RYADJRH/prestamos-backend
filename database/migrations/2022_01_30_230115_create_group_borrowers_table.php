@@ -20,6 +20,7 @@ return new class extends Migration
             $table->unsignedBigInteger('amount_pay');
             $table->unsignedBigInteger('amount_borrow');
             $table->unsignedBigInteger('amount_interest');
+            $table->integer('number_payments');
             $table->string('state_borrow', 15);
             $table->unique(['id_borrower', 'id_group'],'borrower_group_unique');
             $table->timestamps();

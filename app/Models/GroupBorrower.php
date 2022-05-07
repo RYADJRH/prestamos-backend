@@ -22,6 +22,7 @@ class GroupBorrower extends Pivot
         'id_group_borrower',
         'amount_borrow',
         'amount_interest',
+        'number_payments',
         'state_borrow',
     ];
 
