@@ -28,7 +28,7 @@ class Payment extends Model
     ];
 
     protected $casts    = [
-        'date_payment'   => 'date',
+        'date_payment'   => 'date:Y-m-d',
         'state_payment'     => StatePaymentEnum::class
     ];
 

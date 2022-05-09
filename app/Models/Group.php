@@ -4,10 +4,13 @@ namespace App\Models;
 
 use App\Enum\DayWeekEnum;
 use App\Enum\StatePaymentEnum;
+use Carbon\Carbon;
 use Cviebrock\EloquentSluggable\Sluggable;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 
 class Group extends Model
@@ -71,12 +74,11 @@ class Group extends Model
         return $this->belongsTo(Beneficiary::class, 'id_beneficiary', 'id_beneficiary');
     }
 
-
     public  function borrowers()
     {
         return $this->belongsToMany(Borrower::class, GroupBorrower::class, 'id_group', 'id_borrower')
             ->as('group_borrower')
-            ->withPivot(['id_group_borrower', 'amount_borrow', 'amount_interest', 'state_borrow','number_payments'])
+            ->withPivot(['id_group_borrower', 'amount_borrow', 'amount_interest', 'state_borrow', 'number_payments'])
             ->withTimestamps();
     }
 
@@ -91,5 +93,22 @@ class Group extends Model
             ->where('state_payment', '=', StatePaymentEnum::STATUS_PAID);
     }
 
+    public function payments()
+    {
+        return $this->hasManyThrough(Payment::class, GroupBorrower::class, 'id_group', 'id_group_borrower');
+    }
 
+    public function paymentsPastDueGroup($search)
+    {
+        return $this->payments()
+            ->with(['borrower' => function ($query) {
+                $query->select('borrowers.id_borrower', 'borrowers.name_borrower', 'borrowers.last_name_borrower', 'borrowers.slug');
+            }])
+            ->where('state_payment', '!=', StatePaymentEnum::STATUS_PAID)
+            ->where('date_payment', '<', Carbon::now())
+            ->whereHas('borrower', function ($query) use ($search) {
+                $query->where(DB::raw("concat(borrowers.name_borrower, ' ', borrowers.last_name_borrower)"), 'LIKE', "%" . $search . "%");
+            })
+            ->orderBy('date_payment', 'ASC');
+    }
 }

@@ -9,6 +9,8 @@ use App\Http\Controllers\Auth\UserController;
 use App\Http\Controllers\BeneficiaryController;
 use App\Http\Controllers\BorrowerController;
 use App\Http\Controllers\GroupController;
+use App\Http\Controllers\PaymentsController;
+use App\Http\Controllers\Reports\ReportsPaymentsController;
 
 /*
 |--------------------------------------------------------------------------
@@ -62,5 +64,15 @@ Route::middleware(['auth:sanctum'])->group(function () {
     /* Amortization */
     Route::controller(AmortizationController::class)->group(function () {
         Route::post('/amortization/group/calculated', 'fnCalculatedAmortizationGroup');
+    });
+
+    /* Payments */
+    Route::controller(PaymentsController::class)->group(function () {
+        Route::get('/payments/past-due/group/{group:slug}', 'fnPaymentsPastDueGroup');
+        Route::post('/payments/update-state', 'updateStatePayment');
+    });
+
+    Route::controller(ReportsPaymentsController::class)->group(function () {
+        Route::get('/reports/payments/past-due/group/{group:slug}', 'paymentsPastDueGroup');
     });
 });

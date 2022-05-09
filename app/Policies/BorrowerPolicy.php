@@ -12,6 +12,13 @@ class BorrowerPolicy
 {
     use HandlesAuthorization;
 
+
+
+    public function updateStatusPayment(User $user, Borrower $borrower)
+    {
+        $beneficiary        = $borrower->beneficiary;
+        return  $beneficiary->id_user == $user->id_user;
+    }
     /**
      * Determine whether the user can view any models.
      *
