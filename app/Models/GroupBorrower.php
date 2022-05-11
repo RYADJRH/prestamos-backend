@@ -75,12 +75,31 @@ class GroupBorrower extends Pivot
     }
     public function payments()
     {
-        return $this->hasMany(Payment::class, 'id_group_borrower', 'id_group_borrower');
+        return $this->hasMany(Payment::class, 'id_group_borrower', 'id_group_borrower')
+            ->orderBy('num_payment', 'ASC');
     }
 
     public function paymentsPaid()
     {
         return $this->hasMany(Payment::class, 'id_group_borrower', 'id_group_borrower')
             ->where('state_payment', '=', StatePaymentEnum::STATUS_PAID);
+    }
+
+    public function paymentsUnPaid()
+    {
+        return $this->hasMany(Payment::class, 'id_group_borrower', 'id_group_borrower')
+            ->where('state_payment', '=', StatePaymentEnum::STATUS_UNPAID);
+    }
+
+    public function paymentsInProccess()
+    {
+        return $this->hasMany(Payment::class, 'id_group_borrower', 'id_group_borrower')
+            ->where('state_payment', '=', StatePaymentEnum::STATUS_INPROCCESS);
+    }
+
+    public function paymentsUnPaidInProccess()
+    {
+        return $this->hasMany(Payment::class, 'id_group_borrower', 'id_group_borrower')
+            ->where('state_payment', '!=', StatePaymentEnum::STATUS_PAID);
     }
 }

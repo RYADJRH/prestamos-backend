@@ -66,4 +66,9 @@ class Payment extends Model
     {
         return $this->hasOneThrough(Borrower::class, GroupBorrower::class, 'id_group_borrower', 'id_borrower', 'id_group_borrower', 'id_borrower');
     }
+
+    public function groupBorrower()
+    {
+        return $this->hasOne(GroupBorrower::class, 'id_group_borrower', 'id_group_borrower');
+    }
 }

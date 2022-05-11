@@ -39,7 +39,8 @@ class BorrowerPolicy
      */
     public function view(User $user, Borrower $borrower)
     {
-        //
+        $beneficiary        = $borrower->beneficiary;
+        return  $beneficiary->id_user == $user->id_user;
     }
 
     /**

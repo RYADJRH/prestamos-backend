@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enum\StatePaymentEnum;
 use App\Traits\BorrowerTraits;
 use App\Traits\S3Trait;
 use Illuminate\Database\Eloquent\Casts\Attribute;
@@ -94,9 +95,21 @@ class Borrower extends Model
 
     public function payments()
     {
-        return $this->hasManyThrough(Payment::class, GroupBorrower::class, 'id_borrower', 'id_group_borrower');
+        return $this->hasManyThrough(Payment::class, GroupBorrower::class, 'id_borrower', 'id_group_borrower')
+            ->orderBy('num_payment', 'ASC');
     }
 
+    // public function paymentsGroup()
+    // {
+    //     return $this->hasManyThrough(Payment::class, GroupBorrower::class, 'id_borrower', 'id_group_borrower')
+    //         ->orderBy('num_payment', 'ASC');
+    // }
+
+    // public function paymentsUnPaidInProccess()
+    // {
+    //     return $this->hasManyThrough(Payment::class, GroupBorrower::class, 'id_borrower', 'id_group_borrower')
+    //         ->where('state_payment', '!=', StatePaymentEnum::STATUS_PAID);
+    // }
 }
 
 class BorrowerExtend extends Borrower

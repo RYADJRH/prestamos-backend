@@ -59,6 +59,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::get('/group/members/{group:slug}', 'groupMembers');
         Route::post('/group/member', 'addMember');
         Route::delete('/group/member/{groupBorrower}',  'deleteMember');
+        Route::put('/group/update-state/{group:slug}',  'changeStateGroup');
     });
 
     /* Amortization */
@@ -69,10 +70,14 @@ Route::middleware(['auth:sanctum'])->group(function () {
     /* Payments */
     Route::controller(PaymentsController::class)->group(function () {
         Route::get('/payments/past-due/group/{group:slug}', 'fnPaymentsPastDueGroup');
+        Route::get('/payments/next-due/group/{group:slug}', 'fnPaymentsNextDueGroup');
+        Route::get('/payments/group/{group:slug}/borrower/{borrower:slug}', 'fnPaymentsBorrower');
         Route::post('/payments/update-state', 'updateStatePayment');
     });
 
     Route::controller(ReportsPaymentsController::class)->group(function () {
         Route::get('/reports/payments/past-due/group/{group:slug}', 'paymentsPastDueGroup');
+        Route::get('/reports/payments/next-due/group/{group:slug}', 'paymentsNextDueGroup');
+        Route::get('/reports/payments/group/{group:slug}/borrower/{borrower:slug}', 'paymentsBorrowerGroup');
     });
 });

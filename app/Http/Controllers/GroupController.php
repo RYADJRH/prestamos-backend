@@ -86,7 +86,7 @@ class GroupController extends Controller
         }
 
         $payments        = $group->paymentsPaid;
-        $amount_charged  = $payments->sum('amount_payment');
+        $amount_charged  = $payments->sum('amount_payment_period');
         $group->unsetRelation('paymentsPaid');
 
         $group_borrower  = $group->groupBorrowers;
@@ -156,7 +156,7 @@ class GroupController extends Controller
             $member = $group->borrowers()->where('borrowers.id_borrower', $borrower->id_borrower)->first();
             if ($member) {
                 $payments                                               = $member->group_borrower->paymentsPaid;
-                $amount_payment                                         = $payments->sum('amount_payment');
+                $amount_payment                                         = $payments->sum('amount_payment_period');
                 $member->group_borrower->amount_payment_total           = $amount_payment;
                 $member->group_borrower->amount_payment_total_decimal   = round($amount_payment / 100, 2);
                 $number_payments                                        = $member->group_borrower->payments->count();
@@ -182,7 +182,7 @@ class GroupController extends Controller
             ->paginate(5)
             ->through(function ($borrower) {
                 $payments                                               = $borrower->group_borrower->paymentsPaid;
-                $amount_payment                                         = $payments->sum('amount_payment');
+                $amount_payment                                         = $payments->sum('amount_payment_period');
                 $borrower->group_borrower->amount_payment_total         =  $amount_payment;
                 $borrower->group_borrower->amount_payment_total_decimal =  round($amount_payment / 100, 2);
                 $number_payments                                        = $borrower->group_borrower->payments->count();
@@ -194,5 +194,14 @@ class GroupController extends Controller
             });
 
         return new JsonResponse(['borrowers' => $borrowers]);
+    }
+
+    public function changeStateGroup(Request $request, Group $group): JsonResponse
+    {
+        $state_archived_group = filter_var($request->state_archived_group, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE);
+        $this->authorize('updateState', $group);
+        $group->state_archived_group = $state_archived_group;
+        $group->save();
+        return new JsonResponse(['state_archived_group' => $group->state_archived_group]);
     }
 }

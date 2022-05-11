@@ -109,6 +109,23 @@ class Group extends Model
             ->whereHas('borrower', function ($query) use ($search) {
                 $query->where(DB::raw("concat(borrowers.name_borrower, ' ', borrowers.last_name_borrower)"), 'LIKE', "%" . $search . "%");
             })
-            ->orderBy('date_payment', 'ASC');
+            ->orderBy('id_group_borrower', 'ASC');
+    }
+
+    public function paymentsNextDueGroup($search)
+    {
+        $current_date = Carbon::now();
+        $next_week_date = Carbon::now()->addDays(7);
+
+        return $this->payments()
+            ->with(['borrower' => function ($query) {
+                $query->select('borrowers.id_borrower', 'borrowers.name_borrower', 'borrowers.last_name_borrower', 'borrowers.slug');
+            }])
+            ->where('state_payment', '=', StatePaymentEnum::STATUS_INPROCCESS)
+            ->whereBetween('date_payment', [$current_date, $next_week_date])
+            ->whereHas('borrower', function ($query) use ($search) {
+                $query->where(DB::raw("concat(borrowers.name_borrower, ' ', borrowers.last_name_borrower)"), 'LIKE', "%" . $search . "%");
+            })
+            ->orderBy('id_group_borrower', 'ASC');
     }
 }

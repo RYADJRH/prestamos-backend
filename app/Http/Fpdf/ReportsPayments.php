@@ -127,8 +127,10 @@ class ReportsPayments extends Fpdf
 
     function Footer()
     {
-        $this->SetY(-15);
-        $this->SetFont('Courier', 'B', 5);
-        $this->cell(190, 10, 'Sistema desarrollado por ISC.Rafael De Jesus Rebolledo Hernandez', 0, 1, 'C', false);
+        $this->SetY(-20);
+        $this->SetFont('Courier', 'B', 7);
+        $this->cell(190, 5, 'Sistema desarrollado por ISC.Rafael De Jesus Rebolledo Hernandez', 0, 1, 'C', false);
+        $this->cell(190, 5, 'Email : rrrrebolledohdz@gmail.com', 0, 1, 'C', false);
+        $this->cell(190, 5, 'Tel : 747-133-38-71', 0, 1, 'C', false);
     }
 }

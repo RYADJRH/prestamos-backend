@@ -12,6 +12,12 @@ class GroupPolicy
 {
     use HandlesAuthorization;
 
+    public function updateState(User $user, Group $group)
+    {
+        $beneficiary = $group->beneficiary;
+        $group->unsetRelation('beneficiary');
+        return $beneficiary->id_user == $user->id_user;
+    }
 
     public function deleteMember(User $user, Group $group, Borrower $borrower)
     {
