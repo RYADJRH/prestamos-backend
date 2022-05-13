@@ -9,6 +9,7 @@ use App\Http\Controllers\Auth\UserController;
 use App\Http\Controllers\BeneficiaryController;
 use App\Http\Controllers\BorrowerController;
 use App\Http\Controllers\GroupController;
+use App\Http\Controllers\LoansController;
 use App\Http\Controllers\PaymentsController;
 use App\Http\Controllers\Reports\ReportsPaymentsController;
 
@@ -45,6 +46,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::post('/borrower/{borrower}', 'update');
         Route::delete('/borrower/{borrower}', 'delete');
         Route::get('/borrower/add/group/{group:slug}', 'listBorrowerAddGroup');
+        Route::get('/borrower/add/loans/{beneficiary}', 'listBorrowerAddLoans');
     });
 
     /* Group */
@@ -65,6 +67,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
     /* Amortization */
     Route::controller(AmortizationController::class)->group(function () {
         Route::post('/amortization/group/calculated', 'fnCalculatedAmortizationGroup');
+        Route::post('/amortization/individual/calculated', 'fnCalculatedAmortization');
     });
 
     /* Payments */
@@ -80,4 +83,13 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::get('/reports/payments/next-due/group/{group:slug}', 'paymentsNextDueGroup');
         Route::get('/reports/payments/group/{group:slug}/borrower/{borrower:slug}', 'paymentsBorrowerGroup');
     });
+
+    Route::controller(LoansController::class)->group(function(){
+        Route::post('/loans', 'addLoans');
+        Route::get('/loans/{beneficiary}', 'getLoansBeneficiary');
+        Route::get('/loans/amounts/{beneficiary}', 'amountsLoansBeneficiary');
+
+    });
+
+
 });

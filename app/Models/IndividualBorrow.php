@@ -2,11 +2,11 @@
 
 namespace App\Models;
 
+use App\Enum\StatePaymentEnum;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
 
-use App\Enum\DayWeekEnum;
-use App\Enum\StatePaymentEnum;
 
 class IndividualBorrow extends Model
 {
@@ -16,58 +16,73 @@ class IndividualBorrow extends Model
 
     protected $guarded = [
         'id_borrow',
-        'amount_borrow',
-        'amount_interest',
-        'day_payment',
-        'state_payment'
+        'state_borrow',
     ];
     protected $fillable = [
-        'created_borrow',
+        'number_payments',
+        'amount_borrow',
+        'amount_interest',
         'id_borrower'
     ];
 
-
-    protected $casts = [
-        'day_payment' => DayWeekEnum::class,
-        'state_payment' => StatePaymentEnum::class,
-        'created_borrow' => 'date'
+    protected $casts    = [
+        'state_borrow' => StatePaymentEnum::class
     ];
+
+    protected $appends = ['amount_pay', 'amount_pay_decimal', 'amount_borrow_decimal', 'amount_interest_decimal'];
+
+
+    public function amountPay(): Attribute
+    {
+        return new Attribute(
+            get: fn ($value, $attributes) => round($attributes['amount_borrow'] + $attributes['amount_interest'], 2)
+        );
+    }
+
+    public function amountPayDecimal(): Attribute
+    {
+        return new Attribute(
+            get: fn ($value, $attributes) => round(($attributes['amount_borrow'] + $attributes['amount_interest']) / 100, 2)
+        );
+    }
 
     public function amountBorrow(): Attribute
     {
         return new Attribute(
-            set: fn ($value) => $value * 100,
-        );
-    }
-
-    public function amountInterest(): Attribute
-    {
-        return new Attribute(
-            set: fn ($value) => $value * 100,
+            set: fn ($value) => round($value * 100, 2),
         );
     }
 
     public function amountBorrowDecimal(): Attribute
     {
         return new Attribute(
-            get: fn ($value, $attributes) => $attributes['amount_borrow'] > 0 ? ($attributes['amount_borrow'] / 100) : 0,
+            get: fn ($value, $attributes) => round(($attributes['amount_borrow'] > 0 ? $attributes['amount_borrow'] / 100 : 0), 2)
         );
+    }
+
+    public function amountInterest(): Attribute
+    {
+        return new Attribute(
+            set: fn ($value) => round($value * 100, 2),
+        );
+    }
+
+    public function borrower()
+    {
+        return $this->belongsTo(Borrower::class, 'id_borrower', 'id_borrower');
     }
 
     public function amountInterestDecimal(): Attribute
     {
         return new Attribute(
-            get: fn ($value, $attributes) => $attributes['amount_interest'] > 0 ? ($attributes['amount_interest'] / 100) : 0,
+            get: fn ($value, $attributes) => round(($attributes['amount_interest'] > 0 ? $attributes['amount_interest'] / 100 : 0), 2)
         );
     }
 
-   /*  public function borrower()
-    {
-        return $this->belongsTo(Borrower::class, 'id_borrower', 'id_borrower');
-    }
-
-    public function individual_payments()
+    public function individualPayments()
     {
         return $this->hasMany(IndividualPayment::class, 'id_borrow', 'id_borrow');
-    } */
+    }
+
+    
 }

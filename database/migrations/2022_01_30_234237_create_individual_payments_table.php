@@ -15,8 +15,11 @@ return new class extends Migration
     {
         Schema::create('individual_payments', function (Blueprint $table) {
             $table->id('id_payment');
-            $table->unsignedBigInteger('amount_payment');
-            $table->dateTime('created_payment');
+            $table->integer('num_payment');
+            $table->dateTime('date_payment');
+            $table->bigInteger('amount_payment_period');
+            $table->bigInteger('remaining_balance');
+            $table->string('state_payment', 15)->default('in_proccess');
             $table->foreignId('id_borrow')->constrained('individual_borrows', 'id_borrow')->onDelete('cascade');
             $table->timestamps();
         });

@@ -23,7 +23,7 @@ return [
     'amount_payment_period'             => 'monto de pago por abono',
     'date_init_payment'                 => 'fecha del primer pago',
     'payment_every_n_weeks'             => 'periodo de pagos',
-
+    'type_period'                       => 'tipo de periodo',
     'payments'                          => 'datos de los abonos',
 
     'status'                            => 'estado del pago',

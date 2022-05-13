@@ -58,4 +58,12 @@ class Beneficiary extends Model
     {
         return $this->hasMany(Group::class, 'id_beneficiary', 'id_beneficiary');
     }
+
+
+    public function individualLoans()
+    {
+        return $this->hasManyThrough(IndividualBorrow::class, Borrower::class, 'id_beneficiary', 'id_borrower');
+    }
+
+
 }

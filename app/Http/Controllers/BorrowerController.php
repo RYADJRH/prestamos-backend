@@ -53,7 +53,7 @@ class BorrowerController extends Controller
 
         $borrowers = $extend ?  $beneficiary->borrowersExtend() : $beneficiary->borrowers();
         $borrowers = $borrowers
-            ->where(DB::raw("concat(name_borrower, ' ', last_name_borrower)"), 'LIKE', "%" . $search . "%")
+            ->where(DB::raw("concat(name_borrower, ' ', last_name_borrower)"), 'LIKE',$search . "%")
             ->orderBy('id_borrower', 'DESC')
             ->paginate(5);
         return new JsonResponse(['borrowers' => $borrowers]);
@@ -108,11 +108,11 @@ class BorrowerController extends Controller
 
     public function listBorrowerAddGroup(Request $request, Group $group): JsonResponse
     {
-        $search = $request->input('search', '');
         $this->authorize('viewAnyAddBorrower', $group);
+        $search = $request->input('search', '');
         $beneficiary = $group->beneficiary;
         $borrowers = $beneficiary->borrowers()
-            ->where(DB::raw("concat(name_borrower, ' ', last_name_borrower)"), 'LIKE', "%" . $search . "%")
+            ->where(DB::raw("concat(name_borrower, ' ', last_name_borrower)"), 'LIKE', $search . "%")
             ->orderBy('name_borrower', 'DESC')
             ->paginate(3)
             ->through(function ($borrower) use ($group) {
@@ -120,6 +120,19 @@ class BorrowerController extends Controller
                 $borrower->agregado = $created;
                 return $borrower;
             });
+        return new JsonResponse(['borrowers' => $borrowers]);
+    }
+
+    public function listBorrowerAddLoans(Request $request, Beneficiary $beneficiary): JsonResponse
+    {
+        $this->authorize('view', $beneficiary);
+        $search = $request->input('search', '');
+
+        $borrowers = $beneficiary->borrowers()
+            ->where(DB::raw("concat(name_borrower, ' ', last_name_borrower)"), 'LIKE',$search . "%")
+            ->orderBy('name_borrower', 'DESC')
+            ->paginate(3);
+
         return new JsonResponse(['borrowers' => $borrowers]);
     }
 }

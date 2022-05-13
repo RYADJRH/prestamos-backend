@@ -73,6 +73,7 @@ class GroupBorrower extends Pivot
             get: fn ($value, $attributes) => round(($attributes['amount_interest'] > 0 ? $attributes['amount_interest'] / 100 : 0), 2)
         );
     }
+    
     public function payments()
     {
         return $this->hasMany(Payment::class, 'id_group_borrower', 'id_group_borrower')

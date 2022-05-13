@@ -74,7 +74,7 @@ class Group extends Model
         return $this->belongsTo(Beneficiary::class, 'id_beneficiary', 'id_beneficiary');
     }
 
-    public  function borrowers()
+    public function borrowers()
     {
         return $this->belongsToMany(Borrower::class, GroupBorrower::class, 'id_group', 'id_borrower')
             ->as('group_borrower')
@@ -107,7 +107,7 @@ class Group extends Model
             ->where('state_payment', '!=', StatePaymentEnum::STATUS_PAID)
             ->where('date_payment', '<', Carbon::now())
             ->whereHas('borrower', function ($query) use ($search) {
-                $query->where(DB::raw("concat(borrowers.name_borrower, ' ', borrowers.last_name_borrower)"), 'LIKE', "%" . $search . "%");
+                $query->where(DB::raw("concat(borrowers.name_borrower, ' ', borrowers.last_name_borrower)"), 'LIKE', $search . "%");
             })
             ->orderBy('id_group_borrower', 'ASC');
     }
@@ -124,7 +124,7 @@ class Group extends Model
             ->where('state_payment', '=', StatePaymentEnum::STATUS_INPROCCESS)
             ->whereBetween('date_payment', [$current_date, $next_week_date])
             ->whereHas('borrower', function ($query) use ($search) {
-                $query->where(DB::raw("concat(borrowers.name_borrower, ' ', borrowers.last_name_borrower)"), 'LIKE', "%" . $search . "%");
+                $query->where(DB::raw("concat(borrowers.name_borrower, ' ', borrowers.last_name_borrower)"), 'LIKE', $search . "%");
             })
             ->orderBy('id_group_borrower', 'ASC');
     }

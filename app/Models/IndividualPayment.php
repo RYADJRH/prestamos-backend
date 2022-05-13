@@ -3,7 +3,9 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
+use App\Enum\StatePaymentEnum;
 
 class IndividualPayment extends Model
 {
@@ -14,32 +16,48 @@ class IndividualPayment extends Model
 
     protected $guarded  = [
         'id_payment',
-        'amount_payment',
+        'state_payment',
     ];
     protected $fillable = [
-        'created_payment',
+        'num_payment',
+        'date_payment',
+        'amount_payment_period',
+        'remaining_balance',
         'id_borrow'
     ];
-
     protected $casts    = [
-        'created_payment' => 'date'
+        'date_payment'   => 'date:Y-m-d',
+        'state_payment'  => StatePaymentEnum::class
     ];
 
-    public function amountPayment(): Attribute
+    protected $appends = ['amount_payment_period_decimal', 'remaining_balance_decimal'];
+
+    public function amountPaymentPeriod(): Attribute
     {
         return new Attribute(
-            set: fn ($value) => $value * 100,
-        );
-    }
-    public function amountPaymentDecimal(): Attribute
-    {
-        return new Attribute(
-            get: fn ($value, $attributes) => $attributes['amount_payment'] > 0 ? $attributes['amount_payment'] / 100 : 0,
+            set: fn ($value) => round($value * 100, 2),
         );
     }
 
-   /*  public function individual_borrow()
+    public function amountPaymentPeriodDecimal(): Attribute
     {
-        return $this->belongsTo(IndividualBorrow::class, 'id_borrow', 'id_borrow');
-    } */
+        return new Attribute(
+            get: fn ($value, $attributes) => $attributes['amount_payment_period'] > 0 ? round($attributes['amount_payment_period'] / 100, 2) : 0,
+        );
+    }
+
+    public function remainingBalance(): Attribute
+    {
+        return new Attribute(
+            set: fn ($value) => round($value * 100, 2),
+        );
+    }
+
+    public function remainingBalanceDecimal(): Attribute
+    {
+        return new Attribute(
+            get: fn ($value, $attributes) => $attributes['remaining_balance'] > 0 ? round($attributes['remaining_balance'] / 100, 2) : 0,
+        );
+    }
+
 }

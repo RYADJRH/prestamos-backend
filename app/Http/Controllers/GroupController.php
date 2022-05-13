@@ -69,7 +69,7 @@ class GroupController extends Controller
         $groups = $beneficiary->groups()
             ->where('state_archived_group', $archived)
             ->where(function ($query) use ($search, $archived) {
-                $query->where('name_group', 'LIKE', "%{$search}%");
+                $query->where('name_group', 'LIKE', "{$search}%");
             })
             ->orderBy('id_group', 'DESC')
             ->paginate($perPage);
@@ -177,7 +177,7 @@ class GroupController extends Controller
         $search = $request->input('search', '');
         $this->authorize('view', $group);
         $borrowers = $group->borrowers()
-            ->where(DB::raw("concat(name_borrower, ' ', last_name_borrower)"), 'LIKE', "%" . $search . "%")
+            ->where(DB::raw("concat(name_borrower, ' ', last_name_borrower)"), 'LIKE', $search . "%")
             ->orderBy('name_borrower', 'DESC')
             ->paginate(5)
             ->through(function ($borrower) {

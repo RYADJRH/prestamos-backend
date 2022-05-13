@@ -15,11 +15,10 @@ return new class extends Migration
     {
         Schema::create('individual_borrows', function (Blueprint $table) {
             $table->id('id_borrow');
-            $table->dateTime('created_borrow');
             $table->unsignedBigInteger('amount_borrow');
             $table->unsignedBigInteger('amount_interest');
-            $table->integer('day_payment');
-            $table->string('state_payment', 15);
+            $table->integer('number_payments');
+            $table->string('state_borrow', 15)->default('in_proccess');
             $table->foreignId('id_borrower')->constrained('borrowers', 'id_borrower')->onDelete('cascade');
             $table->timestamps();
         });

@@ -37,7 +37,7 @@ class MinAmountPaymentPeriod implements Rule, DataAwareRule
         $amount_interest = round($this->data['amount_interest'] * 100, 2);
         $sum_int_borrow  = round($amount_borrow + $amount_interest, 2);
         $value           = round($value * 100, 2);
-        return $sum_int_borrow > $value;
+        return $sum_int_borrow >= $value;
     }
 
     /**
