@@ -12,6 +12,7 @@ use App\Http\Controllers\GroupController;
 use App\Http\Controllers\LoansController;
 use App\Http\Controllers\PaymentsController;
 use App\Http\Controllers\Reports\ReportsPaymentsController;
+use App\Http\Controllers\TotalAmountsController;
 
 /*
 |--------------------------------------------------------------------------
@@ -91,6 +92,8 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::delete('/loans/{individualBorrow}', 'deleteLoan');
         Route::get('/loans/{beneficiary}', 'getLoansBeneficiary');
         Route::get('/loans/amounts/{beneficiary}', 'amountsLoansBeneficiary');
-
     });
+
+    Route::get('/totals-amounts/{beneficiary}', [TotalAmountsController::class, 'totalsAmount']);
+    
 });

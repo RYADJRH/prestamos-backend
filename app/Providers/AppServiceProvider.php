@@ -4,8 +4,10 @@ namespace App\Providers;
 
 use App\Models\Beneficiary;
 use App\Observers\BeneficiaryObserver;
+use App\Observers\IndvidualPaymentObserver;
 
 use App\Models\Borrower;
+use App\Models\IndividualPayment;
 use App\Models\Payment;
 use App\Observers\BorrowerObserver;
 use App\Observers\PaymentObserver;
@@ -34,6 +36,7 @@ class AppServiceProvider extends ServiceProvider
         Beneficiary::observe(BeneficiaryObserver::class);
         Borrower::observe(BorrowerObserver::class);
         Payment::observe(PaymentObserver::class);
+        IndividualPayment::observe(IndvidualPaymentObserver::class);
 
         Carbon::setLocale(config('app.locale'));
         setlocale(LC_ALL, 'es_MX', 'es', 'ES', 'es_MX.utf8');
