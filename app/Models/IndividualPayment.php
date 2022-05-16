@@ -60,4 +60,9 @@ class IndividualPayment extends Model
         );
     }
 
+    public function individualLoan()
+    {
+        return $this->belongsTo(IndividualBorrow::class,'id_borrow','id_borrow');
+    }
+
 }

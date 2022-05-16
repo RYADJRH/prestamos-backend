@@ -81,8 +81,12 @@ class IndividualBorrow extends Model
 
     public function individualPayments()
     {
-        return $this->hasMany(IndividualPayment::class, 'id_borrow', 'id_borrow');
+        return $this->hasMany(IndividualPayment::class, 'id_borrow', 'id_borrow')
+        ->orderBy('num_payment','ASC');
     }
 
-    
+    public function paymentsUnPaidInProccess()
+    {
+        return $this->hasMany(IndividualPayment::class, 'id_borrow', 'id_borrow')->where('state_payment', '!=', StatePaymentEnum::STATUS_PAID);
+    }
 }

@@ -6,6 +6,8 @@ use App\Enum\StatePaymentEnum;
 use App\Http\Requests\Payments\ChangeStatusRequest;
 use App\Models\Borrower;
 use App\Models\Group;
+use App\Models\IndividualBorrow;
+use App\Models\IndividualPayment;
 use App\Models\Payment;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
@@ -48,12 +50,33 @@ class PaymentsController extends Controller
         return new JsonResponse(['name_group' => $group->name_group, 'name_borrower' => $borrower->full_name, 'payments' => $payments, 'total' => $total]);
     }
 
+    public function paymentsForIndividualLoan(Borrower $borrower, IndividualBorrow $individualBorrow): JsonResponse
+    {
+
+        $loan = $borrower->individualLoans()->where('id_borrow', $individualBorrow->id_borrow)->first();
+        if (!$loan)
+            abort(404);
+
+        $payments = $loan->individualPayments()->paginate(20);
+        $total    = round($loan->paymentsUnPaidInProccess()->sum('amount_payment_period') / 100, 2);
+
+        return new JsonResponse(['name_borrower' => $borrower->full_name, 'total' => $total, 'payments' => $payments]);
+    }
+
     public function updateStatePayment(ChangeStatusRequest $request): JsonResponse
     {
         $status     = $request->status;
         $id_payment = $request->id_payment;
-        $payment = Payment::find($id_payment);
-        $borrower = $payment->borrower;
+        $type       = $request->type;
+
+        if ($type == 'personal-loans') {
+            $payment    = IndividualPayment::find($id_payment);
+            $borrower    = $payment->individualLoan->borrower;
+        } else {
+            $payment    = Payment::find($id_payment);
+            $borrower = $payment->borrower;
+        }
+
         $this->authorize('updateStatusPayment', $borrower);
         $payment->state_payment = $status;
         $payment->save();

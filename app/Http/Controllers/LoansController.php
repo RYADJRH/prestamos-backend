@@ -81,13 +81,13 @@ class LoansController extends Controller
                 );
 
             $loan->individualPayments()->createMany($amortization);
-
-            $loan = IndividualBorrow::find($loan->id_borrow)->with('borrower')->first();
+            $loan = IndividualBorrow::where('id_borrow', $loan->id_borrow)->with('borrower')->first();
 
             $loan = [
                 "id_borrow"             => $loan->id_borrow,
                 "id_borrower"           => $loan->id_borrow,
                 "full_name"             => $loan->borrower->full_name,
+                "slug"                  => $loan->borrower->slug,
                 "amount_borrow"         => $loan->amount_borrow_decimal,
                 "amount_interest"       => $loan->amount_interest_decimal,
                 "amount_pay"            => $loan->amount_pay_decimal,
@@ -108,12 +108,15 @@ class LoansController extends Controller
     {
         $this->authorize('view', $beneficiary);
         $search = $request->input('search', '');
-        Log::info($search);
+        $status = $request->input('status', StatePaymentEnum::STATUS_INPROCCESS->value);
+
         $loans = $beneficiary->individualLoans()
             ->with('borrower')
             ->whereHas('borrower', function ($query) use ($search) {
                 $query->where(DB::raw("concat(borrowers.name_borrower, ' ', borrowers.last_name_borrower)"), 'LIKE',  $search . "%");
             })
+            ->where('state_borrow', $status)
+            ->orderBy('id_borrow', 'DESC')
             ->paginate(20)
             ->through(function ($loan) {
 
@@ -127,6 +130,7 @@ class LoansController extends Controller
                     "id_borrow"             => $loan->id_borrow,
                     "id_borrower"           => $loan->id_borrow,
                     "full_name"             => $loan->borrower->full_name,
+                    "slug"                  => $loan->borrower->slug,
                     "amount_borrow"         => $loan->amount_borrow_decimal,
                     "amount_interest"       => $loan->amount_interest_decimal,
                     "amount_pay"            => $loan->amount_pay_decimal,
@@ -138,4 +142,14 @@ class LoansController extends Controller
 
         return new JsonResponse(['loans' => $loans]);
     }
+
+    public function deleteLoan(IndividualBorrow $individualBorrow): JsonResponse
+    {
+        $beneficiary = $individualBorrow->borrower->beneficiary;
+        $this->authorize('delete', $beneficiary);
+        $isDeleted = $individualBorrow->delete();
+        return new JsonResponse(['isDeleted' => $isDeleted]);
+    }
+
+
 }

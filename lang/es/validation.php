@@ -137,4 +137,5 @@ return [
         ],
     ],
     'min_amount_payment_period' => 'El campo :attribute debe ser menor que la suma del monto del prestamo + monto de los interese.',
+    'id_payment' => 'El campo :attribute no es valido.'
 ];

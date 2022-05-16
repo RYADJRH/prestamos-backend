@@ -27,6 +27,7 @@ return [
     'payments'                          => 'datos de los abonos',
 
     'status'                            => 'estado del pago',
+    'type_status'                       => 'tipo de pago',
     'id_payment'                        => 'identificador del pago',
     'amount_payment'                    => 'monto del pago'
 

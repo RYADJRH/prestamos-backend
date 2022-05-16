@@ -98,6 +98,7 @@ class Borrower extends Model
         return $this->hasManyThrough(Payment::class, GroupBorrower::class, 'id_borrower', 'id_group_borrower')
             ->orderBy('num_payment', 'ASC');
     }
+
     public function individualLoans()
     {
         return $this->hasMany(IndividualBorrow::class,'id_borrower','id_borrower');

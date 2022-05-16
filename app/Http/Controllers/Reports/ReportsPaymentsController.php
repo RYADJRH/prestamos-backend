@@ -8,6 +8,7 @@ use App\Models\Group;
 use Illuminate\Http\Request;
 use App\Http\Fpdf\ReportsPayments;
 use App\Models\Borrower;
+use App\Models\IndividualBorrow;
 use App\Traits\DatesTraits;
 use App\Traits\MoneyTraits;
 use Carbon\Carbon;
@@ -98,6 +99,45 @@ class ReportsPaymentsController extends Controller
         $headers    = ['No.Pago', 'Fecha', 'Monto abono', 'Saldo restante', 'Status'];
         $group_borrower = $group->groupBorrowers()->where('id_borrower', $borrower->id_borrower)->first();
         $payments       = $group_borrower->payments()->get();
+        $payments = $payments->map(function ($payment) {
+            return [
+                $payment->num_payment,
+                $this->formatDate($payment->date_payment),
+                $this->convertToMoney($payment->amount_payment_period_decimal),
+                $this->convertToMoney($payment->remaining_balance_decimal),
+                StatePaymentEnum::getLabel($payment->state_payment)
+            ];
+        });
+
+        $pdf = new  ReportsPayments();
+        $pdf->setData($title, $subTitle, $headers);
+        $pdf->AddPage('P', 'A4');
+
+        $pdf->SetFont('Courier', 'B', 7);
+        $pdf->SetWidths([15, 50, 45, 45, 35]);
+
+        $pdf->SetAligns(['C', 'C', 'C', 'C', 'C']);
+        $pdf->SetFillColor(186, 230, 253);
+        $pdf->Row($headers, 1, true);
+
+        $pdf->SetAligns(['C', 'J', 'R', 'R', 'C']);
+        foreach ($payments as $payment) {
+            $pdf->Row($payment);
+        }
+
+        return $pdf->output('S');
+    }
+
+    public function paymentsBorrowerPersonalLoan(Borrower $borrower, IndividualBorrow $individualBorrow)
+    {
+        $loan = $borrower->individualLoans()->where('id_borrow', $individualBorrow->id_borrow)->first();
+        if (!$loan)
+            abort(404);
+
+        $title      = $borrower->full_name;
+        $subTitle   = 'Pagos';
+        $headers    = ['No.Pago', 'Fecha', 'Monto abono', 'Saldo restante', 'Status'];
+        $payments       = $loan->individualPayments;
         $payments = $payments->map(function ($payment) {
             return [
                 $payment->num_payment,

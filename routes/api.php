@@ -76,20 +76,21 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::get('/payments/next-due/group/{group:slug}', 'fnPaymentsNextDueGroup');
         Route::get('/payments/group/{group:slug}/borrower/{borrower:slug}', 'fnPaymentsBorrower');
         Route::post('/payments/update-state', 'updateStatePayment');
+        Route::get('/payments/personal-loans/{borrower:slug}/{individualBorrow}', 'paymentsForIndividualLoan');
     });
 
     Route::controller(ReportsPaymentsController::class)->group(function () {
         Route::get('/reports/payments/past-due/group/{group:slug}', 'paymentsPastDueGroup');
         Route::get('/reports/payments/next-due/group/{group:slug}', 'paymentsNextDueGroup');
         Route::get('/reports/payments/group/{group:slug}/borrower/{borrower:slug}', 'paymentsBorrowerGroup');
+        Route::get('/reports/payments/personal-loans/borrower/{borrower:slug}/{individualBorrow}', 'paymentsBorrowerPersonalLoan');
     });
 
-    Route::controller(LoansController::class)->group(function(){
+    Route::controller(LoansController::class)->group(function () {
         Route::post('/loans', 'addLoans');
+        Route::delete('/loans/{individualBorrow}', 'deleteLoan');
         Route::get('/loans/{beneficiary}', 'getLoansBeneficiary');
         Route::get('/loans/amounts/{beneficiary}', 'amountsLoansBeneficiary');
 
     });
-
-
 });
