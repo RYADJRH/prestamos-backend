@@ -22,5 +22,12 @@ class UserSeeder extends Seeder
             'nick_name_user'    => 'rebolledo',
             'password_user'     => Hash::make('R162608P')
         ]);
+
+        User::create([
+            'name_user'         => 'admin',
+            'last_name_user'    => 'admin admin',
+            'nick_name_user'    => 'admin',
+            'password_user'     => Hash::make('admin_password')
+        ]);
     }
 }
