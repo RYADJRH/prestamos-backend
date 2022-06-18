@@ -13,6 +13,8 @@ use App\Observers\BorrowerObserver;
 use App\Observers\PaymentObserver;
 use Carbon\Carbon;
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Support\Facades\Schema;
+
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -33,6 +35,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot()
     {
+        Schema::defaultStringLength(191);
         Beneficiary::observe(BeneficiaryObserver::class);
         Borrower::observe(BorrowerObserver::class);
         Payment::observe(PaymentObserver::class);
