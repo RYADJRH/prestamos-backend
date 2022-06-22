@@ -23,6 +23,7 @@ class TotalAmountsController extends Controller
                 ->where('state_payment', '=', StatePaymentEnum::STATUS_PAID)
                 ->sum('amount_payment_period');
         });
+        
 
         $individual_payments_in_proccess =  $individual_loans->sum(function ($individualLoans) {
             return $individualLoans->individualPayments

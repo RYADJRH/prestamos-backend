@@ -29,6 +29,7 @@ return [
     'status'                            => 'estado del pago',
     'type_status'                       => 'tipo de pago',
     'id_payment'                        => 'identificador del pago',
-    'amount_payment'                    => 'monto del pago'
+    'amount_payment'                    => 'monto del pago',
+    'date'                              => 'fecha'
 
 ];
