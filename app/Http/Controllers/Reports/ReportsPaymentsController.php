@@ -26,6 +26,10 @@ class ReportsPaymentsController extends Controller
         $subTitle   = 'Pagos vencidos';
         $headers    = ['Nombre', 'No.Pago', 'Fecha', 'Monto abono', 'Saldo restante', 'Status'];
         $payments = $group->paymentsPastDueGroup('')->get();
+
+        $totalAmount    = $this->convertToMoney(($payments->sum('amount_payment_period') / 100));
+        $totalPayments  = count($payments);
+
         $payments = $payments->map(function ($payment) {
 
             return [
@@ -53,6 +57,11 @@ class ReportsPaymentsController extends Controller
         foreach ($payments as $payment) {
             $pdf->Row($payment);
         }
+
+
+        $pdf->Ln(5);
+        $pdf->cell(190, 5, "TOTAL DEL MONTO:" . $totalAmount, 0, 1, 'R', false);
+        $pdf->cell(190, 5, "TOTAL DE PAGOS:" . $totalPayments, 0, 1, 'R', false);
 
         return $pdf->output('S');
     }
@@ -63,6 +72,10 @@ class ReportsPaymentsController extends Controller
         $subTitle   = 'Pagos siguientes';
         $headers    = ['Nombre', 'No.Pago', 'Fecha', 'Monto abono', 'Saldo restante', 'Status'];
         $payments = $group->paymentsNextDueGroup('')->get();
+
+        $totalAmount    = $this->convertToMoney(($payments->sum('amount_payment_period') / 100));
+        $totalPayments  = count($payments);
+
         $payments = $payments->map(function ($payment) {
 
             return [
@@ -91,6 +104,10 @@ class ReportsPaymentsController extends Controller
             $pdf->Row($payment);
         }
 
+
+        $pdf->Ln(5);
+        $pdf->cell(190, 5, "TOTAL DEL MONTO:" . $totalAmount, 0, 1, 'R', false);
+        $pdf->cell(190, 5, "TOTAL DE PAGOS:" . $totalPayments, 0, 1, 'R', false);
         return $pdf->output('S');
     }
 
@@ -101,6 +118,10 @@ class ReportsPaymentsController extends Controller
         $headers    = ['No.Pago', 'Fecha', 'Monto abono', 'Saldo restante', 'Status'];
         $group_borrower = $group->groupBorrowers()->where('id_borrower', $borrower->id_borrower)->first();
         $payments       = $group_borrower->payments()->get();
+
+        $totalAmount    = $this->convertToMoney(($payments->sum('amount_payment_period') / 100));
+        $totalPayments  = count($payments);
+
         $payments = $payments->map(function ($payment) {
             return [
                 $payment->num_payment,
@@ -126,6 +147,11 @@ class ReportsPaymentsController extends Controller
         foreach ($payments as $payment) {
             $pdf->Row($payment);
         }
+
+
+        $pdf->Ln(5);
+        $pdf->cell(190, 5, "TOTAL DEL MONTO:" . $totalAmount, 0, 1, 'R', false);
+        $pdf->cell(190, 5, "TOTAL DE PAGOS:" . $totalPayments, 0, 1, 'R', false);
 
         return $pdf->output('S');
     }
@@ -140,6 +166,11 @@ class ReportsPaymentsController extends Controller
         $subTitle   = 'Pagos';
         $headers    = ['No.Pago', 'Fecha', 'Monto abono', 'Saldo restante', 'Status'];
         $payments       = $loan->individualPayments;
+
+        $totalAmount    = $this->convertToMoney(($payments->sum('amount_payment_period') / 100));
+        $totalPayments  = count($payments);
+
+
         $payments = $payments->map(function ($payment) {
             return [
                 $payment->num_payment,
@@ -165,6 +196,11 @@ class ReportsPaymentsController extends Controller
         foreach ($payments as $payment) {
             $pdf->Row($payment);
         }
+
+
+        $pdf->Ln(5);
+        $pdf->cell(190, 5, "TOTAL DEL MONTO:" . $totalAmount, 0, 1, 'R', false);
+        $pdf->cell(190, 5, "TOTAL DE PAGOS:" . $totalPayments, 0, 1, 'R', false);
 
         return $pdf->output('S');
     }
@@ -187,6 +223,9 @@ class ReportsPaymentsController extends Controller
         })->filter(function ($payment, $key) {
             return $payment !== null;
         });
+
+        $totalAmount    = $this->convertToMoney(($payments->sum('amount_payment_period') / 100));
+        $totalPayments  = count($payments);
 
         $fechaReport = $this->formatDate($date);
         $title      = "Reporte de pagos - Fecha {$fechaReport}";
@@ -217,6 +256,11 @@ class ReportsPaymentsController extends Controller
                 ]
             );
         }
+
+
+        $pdf->Ln(5);
+        $pdf->cell(190, 5, "TOTAL DEL MONTO:" . $totalAmount, 0, 1, 'R', false);
+        $pdf->cell(190, 5, "TOTAL DE PAGOS:" . $totalPayments, 0, 1, 'R', false);
 
         return $pdf->output('S');
     }
