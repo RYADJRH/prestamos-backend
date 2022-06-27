@@ -56,7 +56,7 @@ class ReportsPayments extends Fpdf
             $this->setxy($x, $y);
 
             //Print the text
-            $this->MultiCell($w, 5, $data[$i], 0, $a);
+            $this->MultiCell($w, 5, utf8_decode($data[$i]), 0, $a);
             //Put the position to the right of the cell
             $this->SetXY($x + $w, $y);
         }

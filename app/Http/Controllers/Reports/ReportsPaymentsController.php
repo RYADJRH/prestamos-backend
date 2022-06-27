@@ -14,11 +14,14 @@ use App\Models\IndividualBorrow;
 use App\Traits\DatesTraits;
 use App\Traits\MoneyTraits;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Log;
 
 class ReportsPaymentsController extends Controller
 {
 
     use DatesTraits, MoneyTraits;
+
+    private $font_size_report = 9;
 
     public function paymentsPastDueGroup(Group $group)
     {
@@ -46,7 +49,7 @@ class ReportsPaymentsController extends Controller
         $pdf->setData($title, $subTitle, $headers);
         $pdf->AddPage('P', 'A4');
 
-        $pdf->SetFont('Courier', 'B', 7);
+        $pdf->SetFont('Courier', 'B', $this->font_size_report);
         $pdf->SetWidths([60, 15, 30, 30, 30, 25]);
 
         $pdf->SetAligns(['C', 'C', 'C', 'C', 'C', 'C']);
@@ -92,7 +95,7 @@ class ReportsPaymentsController extends Controller
         $pdf->setData($title, $subTitle, $headers);
         $pdf->AddPage('P', 'A4');
 
-        $pdf->SetFont('Courier', 'B', 7);
+        $pdf->SetFont('Courier', 'B', $this->font_size_report);
         $pdf->SetWidths([60, 15, 30, 30, 30, 25]);
 
         $pdf->SetAligns(['C', 'C', 'C', 'C', 'C', 'C']);
@@ -136,7 +139,7 @@ class ReportsPaymentsController extends Controller
         $pdf->setData($title, $subTitle, $headers);
         $pdf->AddPage('P', 'A4');
 
-        $pdf->SetFont('Courier', 'B', 7);
+        $pdf->SetFont('Courier', 'B', $this->font_size_report);
         $pdf->SetWidths([15, 50, 45, 45, 35]);
 
         $pdf->SetAligns(['C', 'C', 'C', 'C', 'C']);
@@ -185,7 +188,7 @@ class ReportsPaymentsController extends Controller
         $pdf->setData($title, $subTitle, $headers);
         $pdf->AddPage('P', 'A4');
 
-        $pdf->SetFont('Courier', 'B', 7);
+        $pdf->SetFont('Courier', 'B', $this->font_size_report);
         $pdf->SetWidths([15, 50, 45, 45, 35]);
 
         $pdf->SetAligns(['C', 'C', 'C', 'C', 'C']);
@@ -207,37 +210,65 @@ class ReportsPaymentsController extends Controller
 
     public function paymentsBeneficiaryPersonalLoans(PaymentBeneficiaryPlRequest $request, Beneficiary $beneficiary)
     {
+
         $this->authorize('view', $beneficiary);
         $date   = $request->date('date');
         $date   = $date ? $date : Carbon::now();
         $status = $request->input('status', StatePaymentEnum::STATUS_INPROCCESS->value);
 
-        $payments  = $beneficiary->individualLoans->map(function ($loan, $key) use ($date, $status) {
-            $payment = $loan->individualPayments()->where(['date_payment' => $date, 'state_payment' => $status])->first();
-            if ($payment) {
-                $borrower = $loan->borrower;
-                $payment['full_name'] = $borrower->full_name;
-                return $payment;
+        if ($status == 'unpaid') {
+            $date_ant   = clone $date;
+            $date_ant   = $date_ant->subMonth(5);
+
+            $fechaReport = $this->formatDate($date_ant) . " al " . $this->formatDate($date);
+            $subTitle   = 'No pagados';
+
+            $payments   = [];
+            foreach ($beneficiary->individualLoans as  $loan) {
+                $individual_payments = $loan->individualPayments()
+                    ->whereBetween('date_payment', [$date_ant, $date])
+                    ->where(['state_payment' => $status])->get();
+                if (count($individual_payments) > 0) {
+                    $borrower = $loan->borrower;
+                    $name_borrower = $borrower->full_name;
+                    foreach ($individual_payments as $individual_payment) {
+                        $individual_payment['full_name'] = $name_borrower;
+                        array_push($payments, $individual_payment);
+                    }
+                }
             }
-            return;
-        })->filter(function ($payment, $key) {
-            return $payment !== null;
-        });
+            $payments = collect($payments);
+        } else {
+            $fechaReport = $this->formatDate($date);
+            $subTitle   = 'En proceso';
+            $payments  = $beneficiary->individualLoans->map(function ($loan, $key) use ($date, $status) {
+                $payment = $loan->individualPayments()
+                    ->where(['date_payment' => $date, 'state_payment' => $status])->first();
+                if ($payment) {
+                    $borrower = $loan->borrower;
+                    $payment['full_name'] = $borrower->full_name;
+                    return $payment;
+                }
+                return;
+            })->filter(function ($payment, $key) {
+                return $payment !== null;
+            });
+        }
+
 
         $totalAmount    = $this->convertToMoney(($payments->sum('amount_payment_period') / 100));
         $totalPayments  = count($payments);
-
-        $fechaReport = $this->formatDate($date);
         $title      = "Reporte de pagos - Fecha {$fechaReport}";
-        $subTitle   = 'Pagos';
+
+        
         $headers    = ['Nombre', 'No.Pago', 'Monto abono', 'Status', 'Check'];
 
         $pdf = new  ReportsPayments();
         $pdf->setData($title, $subTitle, $headers);
         $pdf->AddPage('P', 'A4');
 
-        $pdf->SetFont('Courier', 'B', 7);
-        $pdf->SetWidths([65, 15, 36.66, 36.66, 36.66]);
+        $pdf->SetFont('Courier', 'B', $this->font_size_report);
+        $pdf->SetWidths([65, 20, 36.66, 36.66, 31.66]);
 
         $pdf->SetAligns(['C', 'C', 'C', 'C', 'C']);
         $pdf->SetFillColor(186, 230, 253);
@@ -262,6 +293,7 @@ class ReportsPaymentsController extends Controller
         $pdf->cell(190, 5, "TOTAL DEL MONTO:" . $totalAmount, 0, 1, 'R', false);
         $pdf->cell(190, 5, "TOTAL DE PAGOS:" . $totalPayments, 0, 1, 'R', false);
 
-        return $pdf->output('S');
+        $pdf->output();
+        exit;
     }
 }
