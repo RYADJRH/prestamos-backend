@@ -260,7 +260,7 @@ class ReportsPaymentsController extends Controller
         $totalPayments  = count($payments);
         $title      = "Reporte de pagos - Fecha {$fechaReport}";
 
-        
+
         $headers    = ['Nombre', 'No.Pago', 'Monto abono', 'Status', 'Check'];
 
         $pdf = new  ReportsPayments();
@@ -293,7 +293,6 @@ class ReportsPaymentsController extends Controller
         $pdf->cell(190, 5, "TOTAL DEL MONTO:" . $totalAmount, 0, 1, 'R', false);
         $pdf->cell(190, 5, "TOTAL DE PAGOS:" . $totalPayments, 0, 1, 'R', false);
 
-        $pdf->output();
-        exit;
+        return $pdf->output('S');
     }
 }
