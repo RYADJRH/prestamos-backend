@@ -13,7 +13,6 @@ class IndvidualPaymentObserver
         $individualLoan         = $payment->individualLoan;
         $number_payments        = $individualLoan->individualPayments->count();
 
-        $number_payments                = $number_payments;
         $number_payments_paids          = $individualLoan->individualPayments->where('state_payment','=',StatePaymentEnum::STATUS_PAID)->count();
         $number_payments_unpaids        = $individualLoan->individualPayments->where('state_payment','=',StatePaymentEnum::STATUS_UNPAID)->count();
         $number_payments_inProccess     = $individualLoan->individualPayments->where('state_payment','=',StatePaymentEnum::STATUS_INPROCCESS)->count();

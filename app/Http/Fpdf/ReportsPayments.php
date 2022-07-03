@@ -34,13 +34,13 @@ class ReportsPayments extends Fpdf
         $this->aligns = $a;
     }
 
-    function Row($data, $border = 1, $fill = false)
+    function Row($data, $border = 1, $fill = false,$height = 7)
     {
         //Calculate the height of the row
         $nb = 0;
         for ($i = 0; $i < count($data); $i++)
             $nb = max($nb, $this->NbLines($this->widths[$i], $data[$i]));
-        $h = 5 * $nb;
+        $h = $height * $nb;
         //Issue a page break first if needed
         $this->CheckPageBreak($h);
         //Draw the cells of the row
@@ -56,7 +56,7 @@ class ReportsPayments extends Fpdf
             $this->setxy($x, $y);
 
             //Print the text
-            $this->MultiCell($w, 5, utf8_decode($data[$i]), 0, $a);
+            $this->MultiCell($w, $height, utf8_decode($data[$i]), 0, $a);
             //Put the position to the right of the cell
             $this->SetXY($x + $w, $y);
         }

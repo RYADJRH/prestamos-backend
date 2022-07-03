@@ -21,7 +21,7 @@ class ReportsPaymentsController extends Controller
 
     use DatesTraits, MoneyTraits;
 
-    private $font_size_report = 9;
+    private $font_size_report = 18;
 
     public function paymentsPastDueGroup(Group $group)
     {
@@ -261,18 +261,18 @@ class ReportsPaymentsController extends Controller
         $title      = "Reporte de pagos - Fecha {$fechaReport}";
 
 
-        $headers    = ['Nombre', 'No.Pago', 'Monto abono', 'Status', 'Check'];
+        $headers    = ['Nombre', 'Pago', 'Monto abono', '[x]'];
 
         $pdf = new  ReportsPayments();
         $pdf->setData($title, $subTitle, $headers);
         $pdf->AddPage('P', 'A4');
 
         $pdf->SetFont('Courier', 'B', $this->font_size_report);
-        $pdf->SetWidths([65, 20, 36.66, 36.66, 31.66]);
+        $pdf->SetWidths([98.66, 26.66, 46.66, 18]);
 
         $pdf->SetAligns(['C', 'C', 'C', 'C', 'C']);
         $pdf->SetFillColor(186, 230, 253);
-        $pdf->Row($headers, 1, true);
+        $pdf->Row($headers, 1,true);
 
         $pdf->SetAligns(['L', 'C', 'R', 'C', 'C']);
 
@@ -282,7 +282,6 @@ class ReportsPaymentsController extends Controller
                     $payment->full_name,
                     $payment->num_payment,
                     $this->convertToMoney($payment->amount_payment_period_decimal),
-                    StatePaymentEnum::getLabel($payment->state_payment),
                     ""
                 ]
             );
