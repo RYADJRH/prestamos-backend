@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Enum\DayWeekEnum;
 use App\Enum\StatePaymentEnum;
+use App\Traits\Observable;
 use Carbon\Carbon;
 use Cviebrock\EloquentSluggable\Sluggable;
 use Illuminate\Database\Eloquent\Casts\Attribute;
@@ -15,7 +16,7 @@ use Illuminate\Support\Str;
 
 class Group extends Model
 {
-    use HasFactory, Sluggable;
+    use HasFactory, Sluggable, Observable;
 
     protected $table        = 'groups';
     protected $primaryKey   = 'id_group';

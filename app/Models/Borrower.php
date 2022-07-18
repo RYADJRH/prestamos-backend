@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Enum\StatePaymentEnum;
 use App\Traits\BorrowerTraits;
+use App\Traits\Observable;
 use App\Traits\S3Trait;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -13,7 +14,7 @@ use Illuminate\Support\Str;
 
 class Borrower extends Model
 {
-    use HasFactory, BorrowerTraits, S3Trait, Sluggable;
+    use HasFactory, BorrowerTraits, S3Trait, Sluggable, Observable;
 
     protected $table        = 'borrowers';
     protected $primaryKey   = 'id_borrower';
@@ -101,9 +102,8 @@ class Borrower extends Model
 
     public function individualLoans()
     {
-        return $this->hasMany(IndividualBorrow::class,'id_borrower','id_borrower');
+        return $this->hasMany(IndividualBorrow::class, 'id_borrower', 'id_borrower');
     }
-
 }
 
 class BorrowerExtend extends Borrower

@@ -6,10 +6,11 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
 use App\Enum\StatePaymentEnum;
+use App\Traits\Observable;
 
 class IndividualPayment extends Model
 {
-    use HasFactory;
+    use HasFactory, Observable;
 
     protected $table        = 'individual_payments';
     protected $primaryKey   = 'id_payment';
@@ -62,7 +63,6 @@ class IndividualPayment extends Model
 
     public function individualLoan()
     {
-        return $this->belongsTo(IndividualBorrow::class,'id_borrow','id_borrow');
+        return $this->belongsTo(IndividualBorrow::class, 'id_borrow', 'id_borrow');
     }
-
 }

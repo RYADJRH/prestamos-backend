@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enum\StatePaymentEnum;
+use App\Traits\Observable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
@@ -10,7 +11,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class IndividualBorrow extends Model
 {
-    use HasFactory;
+    use HasFactory, Observable;
     protected $table        = 'individual_borrows';
     protected $primaryKey   = 'id_borrow';
 
@@ -82,7 +83,7 @@ class IndividualBorrow extends Model
     public function individualPayments()
     {
         return $this->hasMany(IndividualPayment::class, 'id_borrow', 'id_borrow')
-        ->orderBy('num_payment','ASC');
+            ->orderBy('num_payment', 'ASC');
     }
 
     public function paymentsUnPaidInProccess()

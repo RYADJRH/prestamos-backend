@@ -3,13 +3,14 @@
 namespace App\Models;
 
 use App\Enum\StatePaymentEnum;
+use App\Traits\Observable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
 
 class Payment extends Model
 {
-    use HasFactory;
+    use HasFactory, Observable;
 
     protected $table        = 'payments';
     protected $primaryKey   = 'id_payment';

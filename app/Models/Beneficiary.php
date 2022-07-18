@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Traits\Observable;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -9,7 +10,7 @@ use Illuminate\Support\Str;
 
 class Beneficiary extends Model
 {
-    use HasFactory;
+    use HasFactory, Observable;
 
     protected $table        = 'beneficiaries';
     protected $primaryKey   = 'id_beneficiary';
@@ -64,6 +65,4 @@ class Beneficiary extends Model
     {
         return $this->hasManyThrough(IndividualBorrow::class, Borrower::class, 'id_beneficiary', 'id_borrower');
     }
-
-
 }

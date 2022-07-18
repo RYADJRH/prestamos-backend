@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enum\StatePaymentEnum;
+use App\Traits\Observable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Casts\Attribute;
@@ -10,7 +11,7 @@ use Illuminate\Database\Eloquent\Relations\Pivot;
 
 class GroupBorrower extends Pivot
 {
-    use HasFactory;
+    use HasFactory, Observable;
 
     protected $table        = 'group_borrowers';
     protected $primaryKey   = 'id_group_borrower';
@@ -73,7 +74,7 @@ class GroupBorrower extends Pivot
             get: fn ($value, $attributes) => round(($attributes['amount_interest'] > 0 ? $attributes['amount_interest'] / 100 : 0), 2)
         );
     }
-    
+
     public function payments()
     {
         return $this->hasMany(Payment::class, 'id_group_borrower', 'id_group_borrower')
