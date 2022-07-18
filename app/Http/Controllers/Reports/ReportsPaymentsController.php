@@ -214,57 +214,83 @@ class ReportsPaymentsController extends Controller
         $this->authorize('view', $beneficiary);
         $date   = $request->date('date');
         $date   = $date ? $date : Carbon::now();
+
         $status = $request->input('status', StatePaymentEnum::STATUS_INPROCCESS->value);
+        $status = explode(',', $status);
 
-        if ($status == 'unpaid') {
-            $date_ant   = clone $date;
-            $date_ant   = $date_ant->subMonth(5);
+        $fechaReport = $this->formatDate($date);
 
-            $fechaReport = $this->formatDate($date_ant) . " al " . $this->formatDate($date);
-            $subTitle   = 'No pagados';
+        // $fechaReport = $this->formatDate($date_ant) . " al " . $this->formatDate($date);
 
-            $payments   = [];
-            foreach ($beneficiary->individualLoans as  $loan) {
-                $individual_payments = $loan->individualPayments()
-                    ->whereBetween('date_payment', [$date_ant, $date])
-                    ->where(['state_payment' => $status])->get();
-                if (count($individual_payments) > 0) {
-                    $borrower = $loan->borrower;
-                    $name_borrower = $borrower->full_name;
-                    foreach ($individual_payments as $individual_payment) {
-                        $individual_payment['full_name'] = $name_borrower;
-                        array_push($payments, $individual_payment);
-                    }
-                }
-            }
-            $payments = collect($payments);
-        } else {
-            $fechaReport = $this->formatDate($date);
-            $subTitle   = 'En proceso';
-            $payments  = $beneficiary->individualLoans->map(function ($loan, $key) use ($date, $status) {
+        if (in_array(StatePaymentEnum::STATUS_INPROCCESS->value, $status)) {
+            $payments_in_proccess = $beneficiary->individualLoans->map(function ($loan, $key) use ($date, $status) {
                 $payment = $loan->individualPayments()
-                    ->where(['date_payment' => $date, 'state_payment' => $status])->first();
+                    ->where(['date_payment' => $date, 'state_payment' => StatePaymentEnum::STATUS_INPROCCESS->value])->first();
                 if ($payment) {
                     $borrower = $loan->borrower;
                     $payment['full_name'] = $borrower->full_name;
                     return $payment;
                 }
                 return;
-            })->filter(function ($payment, $key) {
+            })->filter(function ($payment) {
                 return $payment !== null;
             });
         }
+        if (in_array(StatePaymentEnum::STATUS_UNPAID->value, $status)) {
 
+            $date_ant   = clone $date;
+            $date_ant   = $date_ant->subMonth(5);
 
-        $totalAmount    = $this->convertToMoney(($payments->sum('amount_payment_period') / 100));
-        $totalPayments  = count($payments);
+            $payments_un_paid   = [];
+            foreach ($beneficiary->individualLoans as  $loan) {
+                $individual_payments = $loan->individualPayments()
+                    ->whereBetween('date_payment', [$date_ant, $date])
+                    ->where(['state_payment' => StatePaymentEnum::STATUS_UNPAID->value])->get();
+                if (count($individual_payments) > 0) {
+                    $borrower = $loan->borrower;
+                    $name_borrower = $borrower->full_name;
+                    foreach ($individual_payments as $individual_payment) {
+                        $individual_payment['full_name'] = $name_borrower;
+                        array_push($payments_un_paid, $individual_payment);
+                    }
+                }
+            }
+        }
+
+        $collect_1 = in_array(StatePaymentEnum::STATUS_INPROCCESS->value, $status) ? $payments_in_proccess : [];
+        $collect_2 = in_array(StatePaymentEnum::STATUS_UNPAID->value, $status) ? $payments_un_paid : [];
+
+        $newCollection = [...$collect_1, ...$collect_2];
+        $newCollection = collect($newCollection);
+
+        $newCollection = $newCollection->sortBy([
+            fn ($a, $b) => (int) $a['id_borrow'] <=> (int) $b['id_borrow'],
+            fn ($a, $b) => (int) $a['num_payment'] <=> (int) $b['num_payment'],
+        ]);
+
+        /*Pagos del dia  */
+        $paymentsDays  =
+            $newCollection->filter(function ($payment) {
+                return $payment->state_payment->value !== StatePaymentEnum::STATUS_UNPAID->value;
+            });
+
+        $totalAmount    = $this->convertToMoney(($paymentsDays->sum('amount_payment_period') / 100));
+        $totalPayments  = count($paymentsDays);
+
+        /* pagos atrasados */
+        $paymentsPastDue  =
+            $newCollection->filter(function ($payment) {
+                return $payment->state_payment->value === StatePaymentEnum::STATUS_UNPAID->value;
+            });
+
+        $totalAmountPastDue    = $this->convertToMoney(($paymentsPastDue->sum('amount_payment_period') / 100));
+        $totalPaymentsPastDue  = count($paymentsPastDue);
+
         $title      = "Reporte de pagos - Fecha {$fechaReport}";
-
-
         $headers    = ['Nombre', 'Pago', 'Monto abono', '[x]'];
 
         $pdf = new  ReportsPayments();
-        $pdf->setData($title, $subTitle, $headers);
+        $pdf->setData($title, 'Pagos', $headers);
         $pdf->AddPage('P', 'A4');
 
         $pdf->SetFont('Courier', 'B', $this->font_size_report);
@@ -272,25 +298,36 @@ class ReportsPaymentsController extends Controller
 
         $pdf->SetAligns(['C', 'C', 'C', 'C', 'C']);
         $pdf->SetFillColor(186, 230, 253);
-        $pdf->Row($headers, 1,true);
+        $pdf->Row($headers, 1, true);
 
         $pdf->SetAligns(['L', 'C', 'R', 'C', 'C']);
 
-        foreach ($payments as $payment) {
+        $pdf->SetFillColor(224, 120, 120);
+
+        foreach ($newCollection as $payment) {
             $pdf->Row(
                 [
                     $payment->full_name,
                     $payment->num_payment,
                     $this->convertToMoney($payment->amount_payment_period_decimal),
                     ""
-                ]
+                ],
+                1,
+                $payment->state_payment->value == StatePaymentEnum::STATUS_UNPAID->value
             );
         }
 
 
         $pdf->Ln(5);
+        $pdf->cell(190, 5, "PAGOS DEL DIA:", 0, 1, 'R', false);
         $pdf->cell(190, 5, "TOTAL DEL MONTO:" . $totalAmount, 0, 1, 'R', false);
         $pdf->cell(190, 5, "TOTAL DE PAGOS:" . $totalPayments, 0, 1, 'R', false);
+
+        $pdf->Ln(5);
+        $pdf->cell(190, 5, "PAGOS ATRASADOS:", 0, 1, 'R', true);
+        $pdf->cell(190, 5, "TOTAL DEL MONTO:" . $totalAmountPastDue, 0, 1, 'R', true);
+        $pdf->cell(190, 5, "TOTAL DE PAGOS:" . $totalPaymentsPastDue, 0, 1, 'R', true);
+
 
         return $pdf->output('S');
     }

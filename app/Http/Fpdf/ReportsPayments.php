@@ -34,7 +34,7 @@ class ReportsPayments extends Fpdf
         $this->aligns = $a;
     }
 
-    function Row($data, $border = 1, $fill = false,$height = 7)
+    function Row($data, $border = 1, $fill = false, $height = 7)
     {
         //Calculate the height of the row
         $nb = 0;

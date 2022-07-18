@@ -3,8 +3,8 @@
 namespace App\Http\Requests\Report;
 
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Validation\Rules\Enum;
-use App\Enum\StatePaymentEnum;
+
+use App\Rules\PaymenTypeGet;
 
 class PaymentBeneficiaryPlRequest extends FormRequest
 {
@@ -33,7 +33,7 @@ class PaymentBeneficiaryPlRequest extends FormRequest
     public function rules()
     {
         return [
-            'status'   => ['string', new Enum(StatePaymentEnum::class)],
+            'status'   => [new PaymenTypeGet],
             'date'     => ['date_format:Y-m-d'],
         ];
     }

@@ -22,7 +22,7 @@ class BeneficiaryController extends Controller
     public function destroy(Beneficiary $beneficiary)
     {
         $this->authorize('delete', $beneficiary);
-        $beneficiary->delete();
+        // $beneficiary->delete();
         return response()->json(['beneficiary' => $beneficiary]);
     }
 
