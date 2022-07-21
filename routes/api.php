@@ -4,7 +4,9 @@ use App\Http\Controllers\AmortizationController;
 use Illuminate\Support\Facades\Route;
 
 use App\Http\Controllers\Auth\LoginController;
+use App\Http\Controllers\Auth\LoginMobileController;
 use App\Http\Controllers\Auth\LogoutController;
+use App\Http\Controllers\Auth\LogoutMobileController;
 use App\Http\Controllers\Auth\UserController;
 use App\Http\Controllers\BeneficiaryController;
 use App\Http\Controllers\BorrowerController;
@@ -26,10 +28,11 @@ use App\Http\Controllers\TotalAmountsController;
 */
 
 Route::post('user/login',  LoginController::class);
-Route::post('user/logout', LogoutController::class);
-
+Route::post('user/mobile/login',  LoginMobileController::class);
 
 Route::middleware(['auth:sanctum'])->group(function () {
+    Route::post('user/logout', LogoutController::class);
+    Route::post('user/mobile/logout', LogoutMobileController::class);
 
     Route::get('/user', UserController::class);
     /* Beneficiary */
@@ -98,5 +101,4 @@ Route::middleware(['auth:sanctum'])->group(function () {
     });
 
     Route::get('/totals-amounts/{beneficiary}', [TotalAmountsController::class, 'totalsAmount']);
-
 });
