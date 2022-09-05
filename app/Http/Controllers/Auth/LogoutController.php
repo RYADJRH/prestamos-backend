@@ -18,7 +18,7 @@ class LogoutController extends Controller
     public function __invoke(): JsonResponse
     {
         if (Auth::check()) {
-            Auth::logout();
+            Auth::guard('web')->logout();
             return new JsonResponse(['success' => true]);
         }
         return new JsonResponse(['success' => false]);
