@@ -65,4 +65,9 @@ class Beneficiary extends Model
     {
         return $this->hasManyThrough(IndividualBorrow::class, Borrower::class, 'id_beneficiary', 'id_borrower');
     }
+
+    public function shoppings()
+    {
+        return $this->hasMany(Shopping::class, 'id_beneficiary', 'id_beneficiary');
+    }
 }

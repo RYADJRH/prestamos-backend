@@ -14,6 +14,7 @@ use App\Http\Controllers\GroupController;
 use App\Http\Controllers\LoansController;
 use App\Http\Controllers\PaymentsController;
 use App\Http\Controllers\Reports\ReportsPaymentsController;
+use App\Http\Controllers\ShoppingController;
 use App\Http\Controllers\TotalAmountsController;
 
 /*
@@ -98,6 +99,13 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::delete('/loans/{individualBorrow}', 'deleteLoan');
         Route::get('/loans/{beneficiary}', 'getLoansBeneficiary');
         Route::get('/loans/amounts/{beneficiary}', 'amountsLoansBeneficiary');
+    });
+
+    Route::controller(ShoppingController::class)->prefix('shopping')->group(function () {
+        Route::get('/beneficiary/{beneficiary}', 'index');
+        Route::post('/', 'store');
+        Route::delete('/{shopping}', 'destroy');
+        Route::patch('/{shopping}', 'update');
     });
 
     Route::get('/totals-amounts/{beneficiary}', [TotalAmountsController::class, 'totalsAmount']);

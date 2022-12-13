@@ -31,6 +31,10 @@ return [
     'id_payment'                        => 'identificador del pago',
     'amount_payment'                    => 'monto del pago',
     'date'                              => 'fecha',
-    'payment_type_get'                  => 'tipos de estatus'
+    'payment_type_get'                  => 'tipos de estatus',
+
+    'product_name'                      => 'nombre del producto',
+    'date_shopping'                     => 'fecha de la compra',
+    'producto_price'                    => 'precio del producto'
 
 ];
