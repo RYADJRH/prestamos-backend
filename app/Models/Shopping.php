@@ -26,5 +26,6 @@ class Shopping extends Model
 
     protected $casts    = [
         'date_shopping'   => 'date:Y-m-d',
+        'producto_price'  => 'float'
     ];
 }
