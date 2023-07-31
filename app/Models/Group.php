@@ -113,16 +113,18 @@ class Group extends Model
             ->orderBy('id_group_borrower', 'ASC');
     }
 
-    public function paymentsNextDueGroup($search)
+    public function paymentsNextDueGroup($search, $current_date = new  Carbon(), $offsetDays = 7, $status = [])
     {
-        $current_date = Carbon::now();
-        $next_week_date = Carbon::now()->addDays(7);
 
+        $DEFAULT_STATUS = StatePaymentEnum::STATUS_INPROCCESS->value;
+        $status = count($status) == 0 ? [$DEFAULT_STATUS] : $status;
+
+        $next_week_date = $current_date->copy()->addDays($offsetDays);
         return $this->payments()
             ->with(['borrower' => function ($query) {
                 $query->select('borrowers.id_borrower', 'borrowers.name_borrower', 'borrowers.last_name_borrower', 'borrowers.slug');
             }])
-            ->where('state_payment', '=', StatePaymentEnum::STATUS_INPROCCESS)
+            ->whereIn('state_payment', $status)
             ->whereBetween('date_payment', [$current_date, $next_week_date])
             ->whereHas('borrower', function ($query) use ($search) {
                 $query->where(DB::raw("concat(borrowers.name_borrower, ' ', borrowers.last_name_borrower)"), 'LIKE', $search . "%");

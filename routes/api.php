@@ -86,6 +86,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
     /* Reports */
     Route::controller(ReportsPaymentsController::class)->group(function () {
+        Route::get('/reports/payments/by-date/group/{group:slug}/', 'paymentsByDateGroup');
         Route::get('/reports/payments/past-due/group/{group:slug}', 'paymentsPastDueGroup');
         Route::get('/reports/payments/next-due/group/{group:slug}', 'paymentsNextDueGroup');
         Route::get('/reports/payments/group/{group:slug}/borrower/{borrower:slug}', 'paymentsBorrowerGroup');
