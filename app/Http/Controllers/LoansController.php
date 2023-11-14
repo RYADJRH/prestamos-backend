@@ -28,7 +28,6 @@ class LoansController extends Controller
         $amount_borrow      = round($loans->sum('amount_borrow') / 100, 2);
         $amount_interest    = round($loans->sum('amount_interest') / 100, 2);
         $amount_pay         = round($loans->sum('amount_pay') / 100, 2);
-        $amount_charged     = round(5000 / 100, 2);
 
         $amount_charged = $beneficiary->individualLoans
             ->sum(function ($individualLoans) {
@@ -36,14 +35,17 @@ class LoansController extends Controller
                     ->where('state_payment', '=', StatePaymentEnum::STATUS_PAID)
                     ->sum('amount_payment_period');
             });
+
+        $diff_total_charged = round(($loans->sum('amount_pay') - $amount_charged) / 100, 2);
         $amount_charged = round($amount_charged / 100, 2);
 
         $amounts = [
-            'number_loans'      => $number_loans,
-            'amount_borrow'     => $amount_borrow,
-            'amount_interest'   => $amount_interest,
-            'amount_pay'        => $amount_pay,
-            'amount_charged'    => $amount_charged,
+            'number_loans'                  => $number_loans,
+            'amount_borrow'                 => $amount_borrow,
+            'amount_interest'               => $amount_interest,
+            'amount_pay'                    => $amount_pay,
+            'amount_charged'                => $amount_charged,
+            'amount_diff_total_charged'     => $diff_total_charged,
         ];
 
         return new JsonResponse(['amounts_loans' => $amounts]);
@@ -124,19 +126,21 @@ class LoansController extends Controller
                     ->where('state_payment', '=', StatePaymentEnum::STATUS_PAID);
 
                 $amount_payment_total = $individualPayments->sum('amount_payment_period');
-
                 $amount_payment_total = round($amount_payment_total / 100, 2);
+                $amount_diff_total_charged = round(($loan->amount_pay - $loan->amount_payment_total) / 100, 2);
+
                 return [
-                    "id_borrow"             => $loan->id_borrow,
-                    "id_borrower"           => $loan->id_borrow,
-                    "full_name"             => $loan->borrower->full_name,
-                    "slug"                  => $loan->borrower->slug,
-                    "amount_borrow"         => $loan->amount_borrow_decimal,
-                    "amount_interest"       => $loan->amount_interest_decimal,
-                    "amount_pay"            => $loan->amount_pay_decimal,
-                    "amount_payment_total"  => $amount_payment_total,
-                    "number_payments"       =>  count($individualPayments) . " / {$loan->number_payments}",
-                    "state_borrow"          => $loan->state_borrow,
+                    "id_borrow"                 => $loan->id_borrow,
+                    "id_borrower"               => $loan->id_borrow,
+                    "full_name"                 => $loan->borrower->full_name,
+                    "slug"                      => $loan->borrower->slug,
+                    "amount_borrow"             => $loan->amount_borrow_decimal,
+                    "amount_interest"           => $loan->amount_interest_decimal,
+                    "amount_pay"                => $loan->amount_pay_decimal,
+                    "amount_payment_total"      => $amount_payment_total,
+                    "number_payments"           => count($individualPayments) . " / {$loan->number_payments}",
+                    "state_borrow"              => $loan->state_borrow,
+                    "amount_diff_total_charged" => $amount_diff_total_charged
                 ];
             });
 
@@ -150,6 +154,4 @@ class LoansController extends Controller
         $isDeleted = $individualBorrow->delete();
         return new JsonResponse(['isDeleted' => $isDeleted]);
     }
-
-
 }

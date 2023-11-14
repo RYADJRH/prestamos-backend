@@ -96,13 +96,15 @@ class GroupController extends Controller
         $amount_total    =  $amount_borrow +  $amount_interest;
         $group->unsetRelation('groupBorrowers');
 
+        $diff_total_charged     = round(($amount_total - $amount_charged)/100,2);
         return new JsonResponse([
-            'group'             => $group,
-            'number_members'    => $group->borrowers()->count(),
-            'amount_charged'    => round(($amount_charged / 100), 2),
-            'amount_borrow'     => round($amount_borrow / 100, 2),
-            'amount_interest'   => round($amount_interest / 100, 2),
-            'amount_total'      => round($amount_total / 100, 2)
+            'group'                         => $group,
+            'number_members'                => $group->borrowers()->count(),
+            'amount_charged'                => round(($amount_charged / 100), 2),
+            'amount_borrow'                 => round($amount_borrow / 100, 2),
+            'amount_interest'               => round($amount_interest / 100, 2),
+            'amount_total'                  => round($amount_total / 100, 2),
+            'amount_diff_total_charged'     => $diff_total_charged,
         ]);
     }
 
@@ -183,10 +185,12 @@ class GroupController extends Controller
             ->through(function ($borrower) {
                 $payments                                               = $borrower->group_borrower->paymentsPaid;
                 $amount_payment                                         = $payments->sum('amount_payment_period');
-                $borrower->group_borrower->amount_payment_total         =  $amount_payment;
-                $borrower->group_borrower->amount_payment_total_decimal =  round($amount_payment / 100, 2);
+                $borrower->group_borrower->amount_payment_total         = $amount_payment;
+                $borrower->group_borrower->amount_payment_total_decimal = round($amount_payment / 100, 2);
                 $number_payments                                        = $borrower->group_borrower->payments->count();
-                $borrower->group_borrower->number_payments              =  "{$payments->count()} /  $number_payments";
+                $borrower->group_borrower->number_payments              = "{$payments->count()} /  $number_payments";
+                $borrower->group_borrower->amount_diff_total_charged    = $borrower->group_borrower->amount_pay - $borrower->group_borrower->amount_payment_total ;
+                $borrower->group_borrower->amount_diff_total_charged_decimal    = round(($borrower->group_borrower->amount_diff_total_charged/100),2);
                 $borrower->group_borrower->unsetRelation('paymentsPaid');
                 $borrower->group_borrower->unsetRelation('payments');
 
