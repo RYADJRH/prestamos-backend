@@ -126,8 +126,8 @@ class LoansController extends Controller
                     ->where('state_payment', '=', StatePaymentEnum::STATUS_PAID);
 
                 $amount_payment_total = $individualPayments->sum('amount_payment_period');
+                $amount_diff_total_charged = round(($loan->amount_pay - $amount_payment_total) / 100, 2);
                 $amount_payment_total = round($amount_payment_total / 100, 2);
-                $amount_diff_total_charged = round(($loan->amount_pay - $loan->amount_payment_total) / 100, 2);
 
                 return [
                     "id_borrow"                 => $loan->id_borrow,
