@@ -2,21 +2,24 @@
 
 namespace App\Http\Controllers;
 
-use App\Enum\StatePaymentEnum;
+use App\Http\Requests\Payments\AdjustIndividualPaymentRequest;
 use App\Http\Requests\Payments\ChangeStatusRequest;
+use App\Models\AdjustIndividualPayment;
 use App\Models\Borrower;
 use App\Models\Group;
 use App\Models\IndividualBorrow;
 use App\Models\IndividualPayment;
 use App\Models\Payment;
+use App\Traits\AmortizationTraits;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 class PaymentsController extends Controller
 {
+    use AmortizationTraits;
+
     public function fnPaymentsPastDueGroup(Request $request, Group $group): JsonResponse
     {
         $this->authorize('view', $group);
@@ -58,6 +61,10 @@ class PaymentsController extends Controller
             abort(404);
 
         $payments = $loan->individualPayments()->paginate(20);
+        $payments->getCollection()->transform(function ($payment) {
+            $payment->adjustPayment;
+            return $payment;
+        });
         $total    = round($loan->paymentsUnPaidInProccess()->sum('amount_payment_period') / 100, 2);
 
         return new JsonResponse(['name_borrower' => $borrower->full_name, 'total' => $total, 'payments' => $payments]);
@@ -82,5 +89,37 @@ class PaymentsController extends Controller
         $payment->save();
 
         return new JsonResponse(['state_payment' => $payment->state_payment]);
+    }
+
+    public function adjustIndividualPayment(IndividualPayment $individualPayment, AdjustIndividualPaymentRequest $request)
+    {
+        $this->authorize('view', $individualPayment);
+        $amount_payment_decimal = $request->amount_payment;
+        $amount_payment = $amount_payment_decimal * 100;
+        $before_amount = $individualPayment->amount_payment_period;
+
+        if ($amount_payment !== $before_amount) {
+            $payments = $individualPayment->individualLoan->individualPayments;
+            $remainings = $this->calculateRemaining($payments, $individualPayment->individualLoan->amount_pay, $individualPayment->num_payment, $amount_payment_decimal);
+
+            foreach ($remainings as  $value) {
+                $payment = IndividualPayment::find($value['id_payment']);
+                if ($payment) {
+                    $payment->update([
+                        'remaining_balance'     => $value['remaining_balance'],
+                        'amount_payment_period' => $value['amount_payment_period']
+                    ]);
+                }
+            }
+
+            $adjustPayment = new AdjustIndividualPayment();
+            $adjustPayment->before_amount = $before_amount / 100;
+            $adjustPayment->after_amount = $amount_payment_decimal;
+            $adjustPayment->date_adjust_payment = Carbon::now();
+            $adjustPayment->id_payment = $individualPayment->id_payment;
+            $adjustPayment->save();
+        }
+
+        return new JsonResponse(['success' => true]);
     }
 }

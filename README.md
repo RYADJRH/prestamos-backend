@@ -34,3 +34,9 @@ docker run --rm \
 ```
 ./vendor/bin/sail artisan migrate
 ```
+
+5.- Correr seed
+
+```
+./vendor/bin/sail artisan db:seed
+```

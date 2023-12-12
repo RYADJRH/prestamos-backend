@@ -4,10 +4,37 @@ namespace App\Traits;
 
 use App\Enum\TypePeriodAmortizationEnum;
 use Carbon\Carbon;
-use Illuminate\Support\Facades\Log;
 
 trait AmortizationTraits
 {
+
+    public function calculateRemaining($payments, $total_pay, $current_num_payment, $current_amount_payment)
+    {
+        $payments = $payments->reduce(function ($acc, $value) use ($current_num_payment, $current_amount_payment) {
+            array_push($acc, [
+                'id_payment'            => $value->id_payment,
+                'num_payment'           => $value->num_payment,
+                'amount_payment_period' => $current_num_payment === $value->num_payment ? ($current_amount_payment * 100)  : $value->amount_payment_period,
+                'remaining_balance'     => 0
+            ]);
+            return $acc;
+        }, []);
+
+        $num_payments = count($payments);
+        $total = $total_pay;
+        for ($i = 1; $i <= $num_payments; $i++) {
+            $paymentIndex = array_search($i, array_column($payments, 'num_payment'));
+            $payment = $payments[$paymentIndex];
+            $total -= $payment['amount_payment_period'];
+
+            $payments[$paymentIndex]['amount_payment_period'] = $payments[$paymentIndex]['amount_payment_period'] / 100;
+            $payments[$paymentIndex]['remaining_balance'] = $total / 100;
+        }
+        return $payments;
+    }
+
+
+
 
     public function calculatedAmortizationGroup($amount_borrow, $amount_interest, $amount_payment_period, $date_init_payment, $payment_every_n_weeks)
     {

@@ -136,8 +136,9 @@ return [
             'min' => 'La :attribute debe contener más de :min caracteres',
         ],
     ],
-    'min_amount_payment_period' => 'El campo :attribute debe ser menor que la suma del monto del prestamo + monto de los interese.',
-    'id_payment' => 'El campo :attribute no es valido.',
-    'payment_type_get'                  => 'El campo :attribute no es valido'
+    'min_max_amount_adjust_payment' => 'El campo :attribute debe estar entre un valor de $0.00 y $:max',
+    'min_amount_payment_period'     => 'El campo :attribute debe ser menor que la suma del monto del prestamo + monto de los interese.',
+    'id_payment'                    => 'El campo :attribute no es valido.',
+    'payment_type_get'              => 'El campo :attribute no es valido'
 
 ];

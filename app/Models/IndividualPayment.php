@@ -65,4 +65,9 @@ class IndividualPayment extends Model
     {
         return $this->belongsTo(IndividualBorrow::class, 'id_borrow', 'id_borrow');
     }
+
+    public function adjustPayment()
+    {
+        return $this->hasMany(AdjustIndividualPayment::class, 'id_payment', 'id_payment');
+    }
 }

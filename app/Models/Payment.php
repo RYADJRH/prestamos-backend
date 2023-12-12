@@ -30,7 +30,7 @@ class Payment extends Model
 
     protected $casts    = [
         'date_payment'   => 'date:Y-m-d',
-        'state_payment'     => StatePaymentEnum::class
+        'state_payment'  => StatePaymentEnum::class
     ];
 
     protected $appends = ['amount_payment_period_decimal', 'remaining_balance_decimal'];
