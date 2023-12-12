@@ -18,7 +18,7 @@ return new class extends Migration
             $table->bigInteger('before_amount');
             $table->bigInteger('after_amount');
             $table->dateTime('date_adjust_payment');
-            $table->foreignId('id_payment')->constrained('individual_payments','id_payment');
+            $table->foreignId('id_payment')->constrained('individual_payments','id_payment')->onDelete('cascade');
             $table->timestamps();
         });
     }
