@@ -80,6 +80,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::get('/payments/past-due/group/{group:slug}', 'fnPaymentsPastDueGroup');
         Route::get('/payments/next-due/group/{group:slug}', 'fnPaymentsNextDueGroup');
         Route::get('/payments/group/{group:slug}/borrower/{borrower:slug}', 'fnPaymentsBorrower');
+        Route::patch('/payments/group/adjust/{payment}', 'adjustPayment');
         Route::post('/payments/update-state', 'updateStatePayment');
         Route::get('/payments/personal-loans/{borrower:slug}/{individualBorrow}', 'paymentsForIndividualLoan');
         Route::patch('/payments/personal-loans/adjust/{individualPayment}', 'adjustIndividualPayment');

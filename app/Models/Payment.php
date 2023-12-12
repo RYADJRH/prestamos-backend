@@ -72,4 +72,8 @@ class Payment extends Model
     {
         return $this->hasOne(GroupBorrower::class, 'id_group_borrower', 'id_group_borrower');
     }
+    public function adjustPayment()
+    {
+        return $this->hasMany(AdjustPayment::class, 'id_payment', 'id_payment');
+    }
 }

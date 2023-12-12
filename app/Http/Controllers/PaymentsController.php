@@ -3,8 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\Payments\AdjustIndividualPaymentRequest;
+use App\Http\Requests\Payments\AdjustPaymentRequest;
 use App\Http\Requests\Payments\ChangeStatusRequest;
 use App\Models\AdjustIndividualPayment;
+use App\Models\AdjustPayment;
 use App\Models\Borrower;
 use App\Models\Group;
 use App\Models\IndividualBorrow;
@@ -48,7 +50,11 @@ class PaymentsController extends Controller
     {
         $this->authorize('view', $borrower);
         $group_borrower = $group->groupBorrowers()->where('id_borrower', $borrower->id_borrower)->first();
-        $payments       = $group_borrower->payments()->paginate(20);;
+        $payments       = $group_borrower->payments()->paginate(20);
+        $payments->getCollection()->transform(function ($payment) {
+            $payment->adjustPayment;
+            return $payment;
+        });
         $total          = round($group_borrower->paymentsUnPaidInProccess()->sum('amount_payment_period') / 100, 2);
         return new JsonResponse(['name_group' => $group->name_group, 'name_borrower' => $borrower->full_name, 'payments' => $payments, 'total' => $total]);
     }
@@ -89,6 +95,37 @@ class PaymentsController extends Controller
         $payment->save();
 
         return new JsonResponse(['state_payment' => $payment->state_payment]);
+    }
+
+    public function adjustPayment(Payment $payment, AdjustPaymentRequest $request)
+    {
+        $this->authorize('view', $payment);
+        $amount_payment_decimal = $request->amount_payment;
+        $amount_payment = $amount_payment_decimal * 100;
+        $before_amount = $payment->amount_payment_period;
+
+        if ($amount_payment !== $before_amount) {
+            $group_borrower = $payment->groupBorrower;
+            $payments       = $group_borrower->payments;
+            $remainings = $this->calculateRemaining($payments, $group_borrower->amount_pay, $payment->num_payment, $amount_payment_decimal);
+            foreach ($remainings as  $value) {
+                $payment = Payment::find($value['id_payment']);
+                if ($payment) {
+                    $payment->update([
+                        'remaining_balance'     => $value['remaining_balance'],
+                        'amount_payment_period' => $value['amount_payment_period']
+                    ]);
+                }
+            }
+
+            $adjustPayment = new AdjustPayment();
+            $adjustPayment->before_amount = $before_amount / 100;
+            $adjustPayment->after_amount = $amount_payment_decimal;
+            $adjustPayment->date_adjust_payment = Carbon::now();
+            $adjustPayment->id_payment = $payment->id_payment;
+            $adjustPayment->save();
+        }
+        return new JsonResponse(['success' => true]);
     }
 
     public function adjustIndividualPayment(IndividualPayment $individualPayment, AdjustIndividualPaymentRequest $request)

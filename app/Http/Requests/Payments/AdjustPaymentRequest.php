@@ -32,8 +32,15 @@ class AdjustPaymentRequest extends FormRequest
      */
     public function rules()
     {
+        $payment                        = $this->route('payment');
+        $group_borrower                 = $payment->groupBorrower;
+        $totalInPaymentsExceptCurrent   = $group_borrower->payments
+            ->where('num_payment', '!=', $payment->num_payment)
+            ->sum('amount_payment_period');
+        $totalAmountPay                 = $group_borrower->amount_pay;
+
         return [
-            "amount_payment" => ['required', 'numeric', new MinAndMaxAmountAdjustPayment]
+            "amount_payment" => ['required', 'numeric', 'min:0', new MinAndMaxAmountAdjustPayment($totalAmountPay, $totalInPaymentsExceptCurrent)]
         ];
     }
 }
