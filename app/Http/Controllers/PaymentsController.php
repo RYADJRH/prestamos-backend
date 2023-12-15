@@ -82,7 +82,7 @@ class PaymentsController extends Controller
         });
         $total    = round($loan->paymentsUnPaidInProccess()->sum('amount_payment_period') / 100, 2);
 
-        $totalAmountPeriodOfThePayment = $payments = $loan->individualPayments()->sum('amount_payment_period');
+        $totalAmountPeriodOfThePayment = $loan->individualPayments()->sum('amount_payment_period');
         $fullAdjustment = ($loan->amount_pay - $totalAmountPeriodOfThePayment) == 0;
         return new JsonResponse([
             'name_borrower'     => $borrower->full_name,
