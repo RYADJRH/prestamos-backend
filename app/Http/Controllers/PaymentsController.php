@@ -56,7 +56,16 @@ class PaymentsController extends Controller
             return $payment;
         });
         $total          = round($group_borrower->paymentsUnPaidInProccess()->sum('amount_payment_period') / 100, 2);
-        return new JsonResponse(['name_group' => $group->name_group, 'name_borrower' => $borrower->full_name, 'payments' => $payments, 'total' => $total]);
+        $totalAmountPeriodOfThePayment = $group_borrower->payments()->sum('amount_payment_period');
+        $fullAdjustment =  ($group_borrower->amount_pay - $totalAmountPeriodOfThePayment) == 0;
+        return new JsonResponse([
+            'name_group'        => $group->name_group,
+            'name_borrower'     => $borrower->full_name,
+            'payments'          => $payments,
+            'total'             => $total,
+            'full_adjusment'    => $fullAdjustment
+
+        ]);
     }
 
     public function paymentsForIndividualLoan(Borrower $borrower, IndividualBorrow $individualBorrow): JsonResponse
@@ -73,7 +82,14 @@ class PaymentsController extends Controller
         });
         $total    = round($loan->paymentsUnPaidInProccess()->sum('amount_payment_period') / 100, 2);
 
-        return new JsonResponse(['name_borrower' => $borrower->full_name, 'total' => $total, 'payments' => $payments]);
+        $totalAmountPeriodOfThePayment = $payments = $loan->individualPayments()->sum('amount_payment_period');
+        $fullAdjustment = ($loan->amount_pay - $totalAmountPeriodOfThePayment) == 0;
+        return new JsonResponse([
+            'name_borrower'     => $borrower->full_name,
+            'total'             => $total,
+            'payments'          => $payments,
+            'full_adjusment'    => $fullAdjustment
+        ]);
     }
 
     public function updateStatePayment(ChangeStatusRequest $request): JsonResponse
